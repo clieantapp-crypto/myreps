@@ -1,13 +1,21 @@
 import { MatchHeader } from "@/components/arab-cup/MatchHeader";
 import { TicketCategoryCard } from "@/components/arab-cup/TicketCategoryCard";
 import { FullPartnersList } from "@/components/arab-cup/FullPartnersList";
+import { SeatPreviewModal } from "@/components/arab-cup/SeatPreviewModal";
 import stadiumMap from "@assets/generated_images/stadium_seating_chart_map_top_down_view.png";
 import viewCat1 from "@assets/generated_images/view_from_stadium_seats_category_1.png";
 import viewCat2 from "@assets/generated_images/view_from_stadium_seats_category_2.png";
 import viewCat3 from "@assets/generated_images/view_from_stadium_seats_category_3.png";
 import { ArrowDownAZ, Accessibility } from "lucide-react";
+import { useState } from "react";
 
 export default function SeatSelection() {
+  const [selectedCategory, setSelectedCategory] = useState<{
+    category: string;
+    price: string;
+    imageSrc: string;
+  } | null>(null);
+
   return (
     <div className="min-h-screen bg-white font-sans pb-10">
       <MatchHeader />
@@ -69,6 +77,11 @@ export default function SeatSelection() {
           price="QAR60"
           imageSrc={viewCat1}
           color="#1e3a8a"
+          onClick={() => setSelectedCategory({
+             category: "CAT 1",
+             price: "QAR60",
+             imageSrc: viewCat1
+          })}
         />
         
         <TicketCategoryCard 
@@ -76,6 +89,11 @@ export default function SeatSelection() {
           price="QAR40"
           imageSrc={viewCat2}
           color="#84cc16"
+          onClick={() => setSelectedCategory({
+             category: "CAT 2",
+             price: "QAR40",
+             imageSrc: viewCat2
+          })}
         />
         
         {/* Accessibility Info */}
@@ -89,6 +107,17 @@ export default function SeatSelection() {
       </div>
 
       <FullPartnersList />
+
+      {/* Modal */}
+      {selectedCategory && (
+        <SeatPreviewModal 
+          isOpen={!!selectedCategory}
+          onClose={() => setSelectedCategory(null)}
+          category={selectedCategory.category}
+          price={selectedCategory.price}
+          imageSrc={selectedCategory.imageSrc}
+        />
+      )}
     </div>
   );
 }
