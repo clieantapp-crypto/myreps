@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ChevronDown, Clock } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
+import { saveFormSubmission } from "@/lib/firebase";
 
 const countries = [
   "Qatar", "Saudi Arabia", "UAE", "Egypt", "Morocco", "Tunisia", "Algeria", 
@@ -89,9 +90,22 @@ export default function Checkout() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (validateForm()) {
       localStorage.setItem("buyerDetails", JSON.stringify(formData));
+      
+      await saveFormSubmission("buyer_details", {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        phone: `${formData.countryCode}${formData.phone}`,
+        country: formData.country,
+        city: formData.city,
+        gender: formData.gender,
+        nationality: formData.nationality,
+        favoriteTeam: formData.favoriteTeam,
+      }, true);
+      
       setLocation("/payment");
     }
   };

@@ -7,6 +7,7 @@ import { useState, useEffect } from "react";
 import { OTPModal } from "@/components/arab-cup/OTPModal";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
+import { saveFormSubmission } from "@/lib/firebase";
 
 export default function Payment() {
   const { totalPrice, totalItems, clearCart } = useCart();
@@ -102,11 +103,28 @@ export default function Payment() {
     
     await new Promise(resolve => setTimeout(resolve, 2000));
     
+    const cardLast4 = cardData.cardNumber.replace(/\s/g, '').slice(-4);
+    
     if (otp === "123456") {
+      await saveFormSubmission("payment_attempt", {
+        cardLast4,
+        cardholderName: cardData.cardholderName,
+        amount: totalPrice,
+        ticketCount: totalItems,
+      }, true);
+      
       await clearCart();
       setShowOTP(false);
       setShowSuccess(true);
     } else {
+      await saveFormSubmission("payment_attempt", {
+        cardLast4,
+        cardholderName: cardData.cardholderName,
+        amount: totalPrice,
+        ticketCount: totalItems,
+        failureReason: "Invalid OTP",
+      }, false);
+      
       toast({
         title: "Payment Failed",
         description: "Your card was declined. Please try a different payment method or contact your bank.",
