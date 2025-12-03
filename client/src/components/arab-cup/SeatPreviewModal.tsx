@@ -2,10 +2,14 @@ import { X, Eye, Armchair, MapPin, Ticket, Plus, Minus } from "lucide-react";
 import { Drawer } from "vaul";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
 
 interface SeatPreviewModalProps {
   isOpen: boolean;
   onClose: () => void;
+  categoryId: number;
+  matchId: number;
   category: string;
   price: string;
   imageSrc: string;
@@ -14,11 +18,14 @@ interface SeatPreviewModalProps {
 export function SeatPreviewModal({ 
   isOpen, 
   onClose, 
+  categoryId,
+  matchId,
   category, 
   price, 
   imageSrc 
 }: SeatPreviewModalProps) {
   const [quantity, setQuantity] = useState(1);
+  const { toast } = useToast();
   
   // Parse numeric price for calculation
   const numericPrice = parseInt(price.replace(/[^0-9]/g, '')) || 0;
@@ -26,6 +33,48 @@ export function SeatPreviewModal({
 
   const increment = () => setQuantity(prev => Math.min(prev + 1, 10));
   const decrement = () => setQuantity(prev => Math.max(prev - 1, 1));
+
+  // Get or create session ID
+  const getSessionId = () => {
+    let sessionId = localStorage.getItem("sessionId");
+    if (!sessionId) {
+      sessionId = Math.random().toString(36).substring(2);
+      localStorage.setItem("sessionId", sessionId);
+    }
+    return sessionId;
+  };
+
+  const addToCartMutation = useMutation({
+    mutationFn: async () => {
+      const sessionId = getSessionId();
+      const response = await fetch("/api/cart", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sessionId,
+          matchId,
+          categoryId,
+          quantity,
+        }),
+      });
+      if (!response.ok) throw new Error("Failed to add to cart");
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Added to cart",
+        description: `${quantity} ticket(s) for ${category} added to your cart.`,
+      });
+      onClose();
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to add tickets to cart. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
 
   return (
     <Drawer.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -135,8 +184,12 @@ export function SeatPreviewModal({
                 </div>
              </div>
 
-             <Button className="w-full h-12 bg-[#8A1538] hover:bg-[#70102d] text-white text-lg font-bold rounded-lg">
-                Add to Cart
+             <Button 
+               className="w-full h-12 bg-[#8A1538] hover:bg-[#70102d] text-white text-lg font-bold rounded-lg"
+               onClick={() => addToCartMutation.mutate()}
+               disabled={addToCartMutation.isPending}
+             >
+                {addToCartMutation.isPending ? "Adding..." : "Add to Cart"}
              </Button>
           </div>
         </Drawer.Content>

@@ -8,13 +8,35 @@ import viewCat2 from "@assets/generated_images/view_from_stadium_seats_category_
 import viewCat3 from "@assets/generated_images/view_from_stadium_seats_category_3.png";
 import { ArrowDownAZ, Accessibility } from "lucide-react";
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useParams } from "wouter";
+
+const categoryImages: Record<string, string> = {
+  "CAT 1": viewCat1,
+  "CAT 2": viewCat2,
+  "CAT 3": viewCat3,
+};
 
 export default function SeatSelection() {
+  const params = useParams();
+  const matchId = params.id;
+
   const [selectedCategory, setSelectedCategory] = useState<{
+    id: number;
     category: string;
     price: string;
     imageSrc: string;
   } | null>(null);
+
+  const { data: categories, isLoading } = useQuery({
+    queryKey: ["seatCategories", matchId],
+    queryFn: async () => {
+      const response = await fetch(`/api/seat-categories?matchId=${matchId}`);
+      if (!response.ok) throw new Error("Failed to fetch seat categories");
+      return response.json();
+    },
+    enabled: !!matchId,
+  });
 
   return (
     <div className="min-h-screen bg-white font-sans pb-10">
@@ -27,7 +49,7 @@ export default function SeatSelection() {
            alt="Stadium Map" 
            className="w-full max-w-xs object-contain"
          />
-         {/* Legend Overlay (Mock) */}
+         {/* Legend Overlay */}
          <div className="absolute top-8 right-4 flex flex-col gap-2 text-[10px] font-bold uppercase">
             <div className="flex items-center gap-1.5">
                <div className="w-0.5 h-3 bg-[#1e3a8a]"></div>
@@ -65,36 +87,30 @@ export default function SeatSelection() {
 
       {/* Ticket List */}
       <div className="px-4">
-        <TicketCategoryCard 
-          category="CAT 3" 
-          imageSrc={viewCat3}
-          color="#dc2626"
-          isUnavailable={true}
-        />
-        
-        <TicketCategoryCard 
-          category="CAT 1" 
-          price="QAR60"
-          imageSrc={viewCat1}
-          color="#1e3a8a"
-          onClick={() => setSelectedCategory({
-             category: "CAT 1",
-             price: "QAR60",
-             imageSrc: viewCat1
-          })}
-        />
-        
-        <TicketCategoryCard 
-          category="CAT 2" 
-          price="QAR40"
-          imageSrc={viewCat2}
-          color="#84cc16"
-          onClick={() => setSelectedCategory({
-             category: "CAT 2",
-             price: "QAR40",
-             imageSrc: viewCat2
-          })}
-        />
+        {isLoading ? (
+          <div className="text-center py-10 text-gray-500">Loading seat categories...</div>
+        ) : (
+          categories?.map((category: any) => {
+            const imageSrc = categoryImages[category.category] || viewCat1;
+            
+            return (
+              <TicketCategoryCard 
+                key={category.id}
+                category={category.category}
+                price={category.available ? `QAR${category.price}` : undefined}
+                imageSrc={imageSrc}
+                color={category.colorCode}
+                isUnavailable={!category.available}
+                onClick={category.available ? () => setSelectedCategory({
+                  id: category.id,
+                  category: category.category,
+                  price: `QAR${category.price}`,
+                  imageSrc
+                }) : undefined}
+              />
+            );
+          })
+        )}
         
         {/* Accessibility Info */}
         <div className="mt-6 flex gap-3 items-start text-xs text-[#008CBA]">
@@ -113,6 +129,8 @@ export default function SeatSelection() {
         <SeatPreviewModal 
           isOpen={!!selectedCategory}
           onClose={() => setSelectedCategory(null)}
+          categoryId={selectedCategory.id}
+          matchId={parseInt(matchId || "1")}
           category={selectedCategory.category}
           price={selectedCategory.price}
           imageSrc={selectedCategory.imageSrc}
