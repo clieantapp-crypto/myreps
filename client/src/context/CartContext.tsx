@@ -1,5 +1,5 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import React, { createContext, useContext, useState, ReactNode } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 interface CartItem {
   id: number;
@@ -19,11 +19,13 @@ interface CartContextType {
   removeItem: (id: number) => Promise<void>;
   clearCart: () => Promise<void>;
   sessionId: string;
+  priceMap: Record<number, number>;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-const getSessionId = () => {
+const getSessionId = (): string => {
+  if (typeof window === 'undefined') return 'default';
   let sessionId = localStorage.getItem("cartSessionId");
   if (!sessionId) {
     sessionId = Math.random().toString(36).substring(2) + Date.now().toString(36);
@@ -33,7 +35,7 @@ const getSessionId = () => {
 };
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [sessionId] = useState(getSessionId);
+  const [sessionId] = useState<string>(() => getSessionId());
   const [priceMap, setPriceMap] = useState<Record<number, number>>({});
   const queryClient = useQueryClient();
 
@@ -44,6 +46,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       if (!response.ok) throw new Error("Failed to fetch cart");
       return response.json();
     },
+    enabled: !!sessionId,
   });
 
   const totalItems = items.reduce((sum: number, item: CartItem) => sum + item.quantity, 0);
@@ -62,7 +65,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       body: JSON.stringify({ sessionId, matchId, categoryId, quantity }),
     });
     if (!response.ok) throw new Error("Failed to add to cart");
-    queryClient.invalidateQueries({ queryKey: ["cart", sessionId] });
+    await queryClient.invalidateQueries({ queryKey: ["cart", sessionId] });
   };
 
   const updateQuantity = async (id: number, quantity: number) => {
@@ -72,33 +75,36 @@ export function CartProvider({ children }: { children: ReactNode }) {
       body: JSON.stringify({ quantity }),
     });
     if (!response.ok) throw new Error("Failed to update cart");
-    queryClient.invalidateQueries({ queryKey: ["cart", sessionId] });
+    await queryClient.invalidateQueries({ queryKey: ["cart", sessionId] });
   };
 
   const removeItem = async (id: number) => {
     const response = await fetch(`/api/cart/${id}`, { method: "DELETE" });
     if (!response.ok) throw new Error("Failed to remove item");
-    queryClient.invalidateQueries({ queryKey: ["cart", sessionId] });
+    await queryClient.invalidateQueries({ queryKey: ["cart", sessionId] });
   };
 
   const clearCart = async () => {
     const response = await fetch(`/api/cart/session/${sessionId}`, { method: "DELETE" });
     if (!response.ok) throw new Error("Failed to clear cart");
-    queryClient.invalidateQueries({ queryKey: ["cart", sessionId] });
+    await queryClient.invalidateQueries({ queryKey: ["cart", sessionId] });
+  };
+
+  const value: CartContextType = {
+    items,
+    isLoading,
+    totalItems,
+    totalPrice,
+    addToCart,
+    updateQuantity,
+    removeItem,
+    clearCart,
+    sessionId,
+    priceMap,
   };
 
   return (
-    <CartContext.Provider value={{
-      items,
-      isLoading,
-      totalItems,
-      totalPrice,
-      addToCart,
-      updateQuantity,
-      removeItem,
-      clearCart,
-      sessionId,
-    }}>
+    <CartContext.Provider value={value}>
       {children}
     </CartContext.Provider>
   );
