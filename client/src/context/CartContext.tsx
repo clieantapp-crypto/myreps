@@ -1,25 +1,34 @@
 import React, { createContext, useContext, useState, ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
-interface CartItem {
+export interface CartItemWithDetails {
   id: number;
   sessionId: string;
   matchId: number;
   categoryId: number;
   quantity: number;
+  categoryName: string | null;
+  price: number | null;
+  colorCode: string | null;
+  homeTeam: string | null;
+  awayTeam: string | null;
+  matchCode: string | null;
+  date: string | null;
+  time: string | null;
+  stadium: string | null;
 }
 
 interface CartContextType {
-  items: CartItem[];
+  items: CartItemWithDetails[];
   isLoading: boolean;
   totalItems: number;
   totalPrice: number;
-  addToCart: (matchId: number, categoryId: number, quantity: number, price: number) => Promise<void>;
+  addToCart: (matchId: number, categoryId: number, quantity: number) => Promise<void>;
   updateQuantity: (id: number, quantity: number) => Promise<void>;
   removeItem: (id: number) => Promise<void>;
   clearCart: () => Promise<void>;
   sessionId: string;
-  priceMap: Record<number, number>;
+  refetch: () => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -36,29 +45,26 @@ const getSessionId = (): string => {
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [sessionId] = useState<string>(() => getSessionId());
-  const [priceMap, setPriceMap] = useState<Record<number, number>>({});
   const queryClient = useQueryClient();
 
-  const { data: items = [], isLoading } = useQuery({
+  const { data: items = [], isLoading, refetch } = useQuery({
     queryKey: ["cart", sessionId],
     queryFn: async () => {
-      const response = await fetch(`/api/cart/${sessionId}`);
+      const response = await fetch(`/api/cart/${sessionId}/details`);
       if (!response.ok) throw new Error("Failed to fetch cart");
       return response.json();
     },
     enabled: !!sessionId,
   });
 
-  const totalItems = items.reduce((sum: number, item: CartItem) => sum + item.quantity, 0);
+  const totalItems = items.reduce((sum: number, item: CartItemWithDetails) => sum + item.quantity, 0);
   
-  const totalPrice = items.reduce((sum: number, item: CartItem) => {
-    const price = priceMap[item.categoryId] || 60;
+  const totalPrice = items.reduce((sum: number, item: CartItemWithDetails) => {
+    const price = item.price || 0;
     return sum + (price * item.quantity);
   }, 0);
 
-  const addToCart = async (matchId: number, categoryId: number, quantity: number, price: number) => {
-    setPriceMap(prev => ({ ...prev, [categoryId]: price }));
-    
+  const addToCart = async (matchId: number, categoryId: number, quantity: number) => {
     const response = await fetch("/api/cart", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -100,7 +106,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     removeItem,
     clearCart,
     sessionId,
-    priceMap,
+    refetch,
   };
 
   return (

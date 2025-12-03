@@ -2,7 +2,6 @@ import { Header } from "@/components/arab-cup/Header";
 import { useCart } from "@/context/CartContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ChevronDown, Clock } from "lucide-react";
 import { useState, useEffect } from "react";
@@ -105,199 +104,204 @@ export default function Checkout() {
   };
 
   return (
-    <div className="min-h-screen bg-white font-sans">
+    <div className="min-h-screen bg-[#f7f7f7] font-sans pb-24">
       <Header />
       
-      <div className="bg-[#8A1538] text-white px-4 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-2 bg-[#6b1030] rounded-full px-3 py-1.5">
+      <div className="sticky top-0 z-10 bg-[#8A1538] text-white px-4 py-3 flex items-center justify-between shadow-md">
+        <div className="flex items-center gap-2 bg-[#6b1030] rounded-full px-4 py-2">
           <Clock className="w-4 h-4" />
-          <span className="text-sm font-medium">{formatTime(timeLeft)}</span>
+          <span className="text-sm font-semibold">{formatTime(timeLeft)}</span>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="text-sm uppercase tracking-wide">Order Summary</span>
-          <button 
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="flex items-center gap-1"
-          >
-            <span className="font-bold text-lg">QAR{totalPrice}</span>
-            <ChevronDown className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
-          </button>
-        </div>
+        <button 
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="flex items-center gap-2"
+        >
+          <span className="text-xs uppercase tracking-wider opacity-80">Order Summary</span>
+          <span className="font-bold text-xl">QAR{totalPrice}</span>
+          <ChevronDown className={`w-5 h-5 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+        </button>
       </div>
 
       {isExpanded && (
         <div className="bg-[#6b1030] text-white px-4 py-3 text-sm">
-          <div className="flex justify-between">
-            <span>{totalItems} Ticket(s)</span>
-            <span>QAR{totalPrice}</span>
+          <div className="flex justify-between items-center">
+            <span className="opacity-80">{totalItems} Ticket(s)</span>
+            <span className="font-semibold">QAR{totalPrice}</span>
           </div>
         </div>
       )}
 
       <div className="p-4">
-        <h2 className="text-xl font-bold text-[#8A1538] mb-6">Buyer details</h2>
-        
-        <div className="space-y-4">
-          <div>
-            <Label className="text-xs text-gray-500">First Name (as per ID)</Label>
-            <Input
-              data-testid="input-firstName"
-              value={formData.firstName}
-              onChange={(e) => handleInputChange("firstName", e.target.value)}
-              className={`mt-1 h-12 border-gray-300 ${errors.firstName ? 'border-red-500' : ''}`}
-              placeholder="Enter first name"
-              dir="auto"
-            />
-            {errors.firstName && <p className="text-red-500 text-xs mt-1">{errors.firstName}</p>}
-          </div>
+        <div className="bg-white rounded-2xl shadow-sm p-6">
+          <h2 className="text-xl font-bold text-[#8A1538] mb-6">Buyer details</h2>
+          
+          <div className="space-y-5">
+            <div className="relative">
+              <Input
+                data-testid="input-firstName"
+                value={formData.firstName}
+                onChange={(e) => handleInputChange("firstName", e.target.value)}
+                className={`h-14 pt-5 pb-2 px-4 text-base border-gray-200 rounded-xl ${errors.firstName ? 'border-red-400 bg-red-50' : 'focus:border-[#8A1538]'}`}
+                placeholder=" "
+                dir="auto"
+              />
+              <label className="absolute left-4 top-2 text-xs text-gray-500 pointer-events-none">
+                First Name (as per ID)
+              </label>
+              {errors.firstName && <p className="text-red-500 text-xs mt-1 ml-1">{errors.firstName}</p>}
+            </div>
 
-          <div>
-            <Label className="text-xs text-gray-500">Last Name (as per ID)</Label>
-            <Input
-              data-testid="input-lastName"
-              value={formData.lastName}
-              onChange={(e) => handleInputChange("lastName", e.target.value)}
-              className={`mt-1 h-12 border-gray-300 ${errors.lastName ? 'border-red-500' : ''}`}
-              placeholder="Enter last name"
-            />
-            {errors.lastName && <p className="text-red-500 text-xs mt-1">{errors.lastName}</p>}
-          </div>
+            <div className="relative">
+              <Input
+                data-testid="input-lastName"
+                value={formData.lastName}
+                onChange={(e) => handleInputChange("lastName", e.target.value)}
+                className={`h-14 pt-5 pb-2 px-4 text-base border-gray-200 rounded-xl ${errors.lastName ? 'border-red-400 bg-red-50' : 'focus:border-[#8A1538]'}`}
+                placeholder=" "
+              />
+              <label className="absolute left-4 top-2 text-xs text-gray-500 pointer-events-none">
+                Last Name (as per ID)
+              </label>
+              {errors.lastName && <p className="text-red-500 text-xs mt-1 ml-1">{errors.lastName}</p>}
+            </div>
 
-          <div>
-            <Label className="text-xs text-gray-500">Email ID</Label>
-            <Input
-              data-testid="input-email"
-              type="email"
-              value={formData.email}
-              onChange={(e) => handleInputChange("email", e.target.value)}
-              className={`mt-1 h-12 border-gray-300 ${errors.email ? 'border-red-500' : ''}`}
-              placeholder="email@example.com"
-            />
-            {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
-          </div>
+            <div className="relative">
+              <Input
+                data-testid="input-email"
+                type="email"
+                value={formData.email}
+                onChange={(e) => handleInputChange("email", e.target.value)}
+                className={`h-14 pt-5 pb-2 px-4 text-base border-gray-200 rounded-xl ${errors.email ? 'border-red-400 bg-red-50' : 'focus:border-[#8A1538]'}`}
+                placeholder=" "
+              />
+              <label className="absolute left-4 top-2 text-xs text-gray-500 pointer-events-none">
+                Email ID
+              </label>
+              {errors.email && <p className="text-red-500 text-xs mt-1 ml-1">{errors.email}</p>}
+            </div>
 
-          <div className="flex gap-2">
-            <div className="w-1/3">
-              <Label className="text-xs text-gray-500">Country Code</Label>
+            <div className="flex gap-3">
+              <div className="w-28">
+                <Select 
+                  value={formData.countryCode} 
+                  onValueChange={(v) => handleInputChange("countryCode", v)}
+                >
+                  <SelectTrigger data-testid="select-countryCode" className="h-14 rounded-xl border-gray-200">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {countryCodes.map(cc => (
+                      <SelectItem key={cc.code} value={cc.code}>
+                        {cc.code}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex-1 relative">
+                <Input
+                  data-testid="input-phone"
+                  type="tel"
+                  value={formData.phone}
+                  onChange={(e) => handleInputChange("phone", e.target.value)}
+                  className={`h-14 pt-5 pb-2 px-4 text-base border-gray-200 rounded-xl ${errors.phone ? 'border-red-400 bg-red-50' : 'focus:border-[#8A1538]'}`}
+                  placeholder=" "
+                />
+                <label className="absolute left-4 top-2 text-xs text-gray-500 pointer-events-none">
+                  Phone Number
+                </label>
+                {errors.phone && <p className="text-red-500 text-xs mt-1 ml-1">{errors.phone}</p>}
+              </div>
+            </div>
+
+            <div>
               <Select 
-                value={formData.countryCode} 
-                onValueChange={(v) => handleInputChange("countryCode", v)}
+                value={formData.country} 
+                onValueChange={(v) => handleInputChange("country", v)}
               >
-                <SelectTrigger data-testid="select-countryCode" className="mt-1 h-12">
-                  <SelectValue />
+                <SelectTrigger data-testid="select-country" className={`h-14 rounded-xl ${errors.country ? 'border-red-400 bg-red-50' : 'border-gray-200'}`}>
+                  <SelectValue placeholder="Country" />
                 </SelectTrigger>
                 <SelectContent>
-                  {countryCodes.map(cc => (
-                    <SelectItem key={cc.code} value={cc.code}>
-                      {cc.code}
-                    </SelectItem>
+                  {countries.map(country => (
+                    <SelectItem key={country} value={country}>{country}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.country && <p className="text-red-500 text-xs mt-1 ml-1">{errors.country}</p>}
+            </div>
+
+            <div className="relative">
+              <Input
+                data-testid="input-city"
+                value={formData.city}
+                onChange={(e) => handleInputChange("city", e.target.value)}
+                className={`h-14 pt-5 pb-2 px-4 text-base border-gray-200 rounded-xl ${errors.city ? 'border-red-400 bg-red-50' : 'focus:border-[#8A1538]'}`}
+                placeholder=" "
+              />
+              <label className="absolute left-4 top-2 text-xs text-gray-500 pointer-events-none">
+                City
+              </label>
+              {errors.city && <p className="text-red-500 text-xs mt-1 ml-1">{errors.city}</p>}
+            </div>
+
+            <div>
+              <Select 
+                value={formData.gender} 
+                onValueChange={(v) => handleInputChange("gender", v)}
+              >
+                <SelectTrigger data-testid="select-gender" className={`h-14 rounded-xl ${errors.gender ? 'border-red-400 bg-red-50' : 'border-gray-200'}`}>
+                  <SelectValue placeholder="Gender" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="male">Male</SelectItem>
+                  <SelectItem value="female">Female</SelectItem>
+                </SelectContent>
+              </Select>
+              {errors.gender && <p className="text-red-500 text-xs mt-1 ml-1">{errors.gender}</p>}
+            </div>
+
+            <div>
+              <Select 
+                value={formData.nationality} 
+                onValueChange={(v) => handleInputChange("nationality", v)}
+              >
+                <SelectTrigger data-testid="select-nationality" className={`h-14 rounded-xl ${errors.nationality ? 'border-red-400 bg-red-50' : 'border-gray-200'}`}>
+                  <SelectValue placeholder="Nationality" />
+                </SelectTrigger>
+                <SelectContent>
+                  {countries.map(country => (
+                    <SelectItem key={country} value={country}>{country}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.nationality && <p className="text-red-500 text-xs mt-1 ml-1">{errors.nationality}</p>}
+            </div>
+
+            <div>
+              <Select 
+                value={formData.favoriteTeam} 
+                onValueChange={(v) => handleInputChange("favoriteTeam", v)}
+              >
+                <SelectTrigger data-testid="select-team" className="h-14 rounded-xl border-gray-200">
+                  <SelectValue placeholder="Which team are you a fan of?" />
+                </SelectTrigger>
+                <SelectContent>
+                  {teams.map(team => (
+                    <SelectItem key={team} value={team}>{team}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
-            <div className="flex-1">
-              <Label className="text-xs text-gray-500">Phone Number</Label>
-              <Input
-                data-testid="input-phone"
-                type="tel"
-                value={formData.phone}
-                onChange={(e) => handleInputChange("phone", e.target.value)}
-                className={`mt-1 h-12 border-gray-300 ${errors.phone ? 'border-red-500' : ''}`}
-                placeholder="Phone Number"
-              />
-              {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
-            </div>
-          </div>
-
-          <div>
-            <Label className="text-xs text-gray-500">Country</Label>
-            <Select 
-              value={formData.country} 
-              onValueChange={(v) => handleInputChange("country", v)}
-            >
-              <SelectTrigger data-testid="select-country" className={`mt-1 h-12 ${errors.country ? 'border-red-500' : ''}`}>
-                <SelectValue placeholder="Country" />
-              </SelectTrigger>
-              <SelectContent>
-                {countries.map(country => (
-                  <SelectItem key={country} value={country}>{country}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {errors.country && <p className="text-red-500 text-xs mt-1">{errors.country}</p>}
-          </div>
-
-          <div>
-            <Label className="text-xs text-gray-500">City</Label>
-            <Input
-              data-testid="input-city"
-              value={formData.city}
-              onChange={(e) => handleInputChange("city", e.target.value)}
-              className={`mt-1 h-12 border-gray-300 ${errors.city ? 'border-red-500' : ''}`}
-              placeholder="City"
-            />
-            {errors.city && <p className="text-red-500 text-xs mt-1">{errors.city}</p>}
-          </div>
-
-          <div>
-            <Label className="text-xs text-gray-500">Gender</Label>
-            <Select 
-              value={formData.gender} 
-              onValueChange={(v) => handleInputChange("gender", v)}
-            >
-              <SelectTrigger data-testid="select-gender" className={`mt-1 h-12 ${errors.gender ? 'border-red-500' : ''}`}>
-                <SelectValue placeholder="Gender" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="male">Male</SelectItem>
-                <SelectItem value="female">Female</SelectItem>
-              </SelectContent>
-            </Select>
-            {errors.gender && <p className="text-red-500 text-xs mt-1">{errors.gender}</p>}
-          </div>
-
-          <div>
-            <Label className="text-xs text-gray-500">Nationality</Label>
-            <Select 
-              value={formData.nationality} 
-              onValueChange={(v) => handleInputChange("nationality", v)}
-            >
-              <SelectTrigger data-testid="select-nationality" className={`mt-1 h-12 ${errors.nationality ? 'border-red-500' : ''}`}>
-                <SelectValue placeholder="Nationality" />
-              </SelectTrigger>
-              <SelectContent>
-                {countries.map(country => (
-                  <SelectItem key={country} value={country}>{country}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {errors.nationality && <p className="text-red-500 text-xs mt-1">{errors.nationality}</p>}
-          </div>
-
-          <div>
-            <Label className="text-xs text-gray-500">Which team are you a fan of?</Label>
-            <Select 
-              value={formData.favoriteTeam} 
-              onValueChange={(v) => handleInputChange("favoriteTeam", v)}
-            >
-              <SelectTrigger data-testid="select-team" className="mt-1 h-12">
-                <SelectValue placeholder="Which team are you a fan of?" />
-              </SelectTrigger>
-              <SelectContent>
-                {teams.map(team => (
-                  <SelectItem key={team} value={team}>{team}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
           </div>
         </div>
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t">
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-100 shadow-lg">
         <Button 
           data-testid="button-pay"
           onClick={handleSubmit}
-          className="w-full h-14 bg-[#8A1538] hover:bg-[#70102d] text-white text-lg font-bold rounded-lg"
+          className="w-full h-14 bg-[#8A1538] hover:bg-[#70102d] text-white text-lg font-bold rounded-xl shadow-lg"
         >
           Pay
         </Button>

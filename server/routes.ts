@@ -48,10 +48,12 @@ export async function registerRoutes(
   // Match routes
   app.get("/api/matches", async (req, res) => {
     try {
-      const eventId = parseInt(req.query.eventId as string);
+      const eventIdParam = req.query.eventId as string;
+      const eventId = eventIdParam ? parseInt(eventIdParam) : undefined;
       const matches = await storage.getMatches(eventId);
       res.json(matches);
     } catch (error) {
+      console.error("Error fetching matches:", error);
       res.status(500).json({ error: "Failed to fetch matches" });
     }
   });
@@ -108,6 +110,17 @@ export async function registerRoutes(
       res.json(items);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch cart items" });
+    }
+  });
+
+  app.get("/api/cart/:sessionId/details", async (req, res) => {
+    try {
+      const sessionId = req.params.sessionId;
+      const items = await storage.getCartItemsWithDetails(sessionId);
+      res.json(items);
+    } catch (error) {
+      console.error("Error fetching cart details:", error);
+      res.status(500).json({ error: "Failed to fetch cart details" });
     }
   });
 

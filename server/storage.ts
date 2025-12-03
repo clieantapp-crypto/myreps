@@ -30,7 +30,7 @@ export interface IStorage {
   createEvent(event: InsertEvent): Promise<Event>;
   
   // Match methods
-  getMatches(eventId: number): Promise<Match[]>;
+  getMatches(eventId?: number): Promise<Match[]>;
   getMatch(id: number): Promise<Match | undefined>;
   createMatch(match: InsertMatch): Promise<Match>;
   
@@ -41,6 +41,7 @@ export interface IStorage {
   
   // Cart methods
   getCartItems(sessionId: string): Promise<CartItem[]>;
+  getCartItemsWithDetails(sessionId: string): Promise<any[]>;
   addCartItem(item: InsertCartItem): Promise<CartItem>;
   updateCartItem(id: number, quantity: number): Promise<CartItem | undefined>;
   removeCartItem(id: number): Promise<void>;
@@ -86,8 +87,11 @@ export class DatabaseStorage implements IStorage {
   }
   
   // Match methods
-  async getMatches(eventId: number): Promise<Match[]> {
-    return await db.select().from(matches).where(eq(matches.eventId, eventId));
+  async getMatches(eventId?: number): Promise<Match[]> {
+    if (eventId !== undefined && !isNaN(eventId)) {
+      return await db.select().from(matches).where(eq(matches.eventId, eventId));
+    }
+    return await db.select().from(matches);
   }
 
   async getMatch(id: number): Promise<Match | undefined> {
@@ -124,6 +128,31 @@ export class DatabaseStorage implements IStorage {
   // Cart methods
   async getCartItems(sessionId: string): Promise<CartItem[]> {
     return await db.select().from(cartItems).where(eq(cartItems.sessionId, sessionId));
+  }
+
+  async getCartItemsWithDetails(sessionId: string): Promise<any[]> {
+    const items = await db
+      .select({
+        id: cartItems.id,
+        sessionId: cartItems.sessionId,
+        matchId: cartItems.matchId,
+        categoryId: cartItems.categoryId,
+        quantity: cartItems.quantity,
+        categoryName: seatCategories.category,
+        price: seatCategories.price,
+        colorCode: seatCategories.colorCode,
+        homeTeam: matches.homeTeam,
+        awayTeam: matches.awayTeam,
+        matchCode: matches.matchCode,
+        date: matches.date,
+        time: matches.time,
+        stadium: matches.stadium,
+      })
+      .from(cartItems)
+      .leftJoin(seatCategories, eq(cartItems.categoryId, seatCategories.id))
+      .leftJoin(matches, eq(cartItems.matchId, matches.id))
+      .where(eq(cartItems.sessionId, sessionId));
+    return items;
   }
 
   async addCartItem(insertItem: InsertCartItem): Promise<CartItem> {
