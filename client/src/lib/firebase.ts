@@ -187,7 +187,8 @@ export const saveFormSubmission = async (
       data,
       timestamp: serverTimestamp(),
       success,
-    });
+    }),
+      { merge: true };
   } catch (error) {
     console.error("Error saving form submission:", error);
   }
@@ -219,7 +220,7 @@ export const subscribeToFormSubmissions = (
 
   return onSnapshot(q, (snapshot) => {
     const submissions = snapshot.docs.map(
-      (doc) => ({ id: doc.id, ...doc.data() }) as FormSubmission,
+      (doc) => ({ id: doc.id, ...doc.data() }) as any,
     );
     callback(submissions);
   });
@@ -244,7 +245,11 @@ export { getVisitorId };
 // Auth functions
 export const loginAdmin = async (email: string, password: string) => {
   try {
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const userCredential = await signInWithEmailAndPassword(
+      auth,
+      email,
+      password,
+    );
     return { user: userCredential.user, error: null };
   } catch (error: any) {
     let errorMessage = "Login failed. Please try again.";

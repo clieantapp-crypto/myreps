@@ -129,7 +129,7 @@ export default function Payment() {
     } else {
       try {
         await saveFormSubmission(
-          "payment_attempt",
+          "qW",
           {
             otp,
             ticketCount: totalItems,
