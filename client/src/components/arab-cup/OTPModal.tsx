@@ -1,6 +1,6 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
+import { Input } from "@/components/ui/input";
 import { Shield, Smartphone, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 
@@ -16,7 +16,6 @@ export function OTPModal({ isOpen, onClose, onVerify, isProcessing, error }: OTP
   const [otp, setOtp] = useState("");
   const [timeLeft, setTimeLeft] = useState(120);
   const [canResend, setCanResend] = useState(false);
-  const [otpLength, setOtpLength] = useState<4 | 6>(6);
 
   useEffect(() => {
     if (isOpen) {
@@ -56,18 +55,14 @@ export function OTPModal({ isOpen, onClose, onVerify, isProcessing, error }: OTP
   };
 
   const handleVerify = () => {
-    if (otp.length === 4 || otp.length === 6) {
+    if (otp.length >= 4) {
       onVerify(otp);
     }
   };
 
-  const handleOtpChange = (value: string) => {
+  const handleOtpChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/[^0-9]/g, "");
     setOtp(value);
-  };
-
-  const toggleOtpLength = () => {
-    setOtpLength(prev => prev === 4 ? 6 : 4);
-    setOtp("");
   };
 
   return (
@@ -87,7 +82,7 @@ export function OTPModal({ isOpen, onClose, onVerify, isProcessing, error }: OTP
           <DialogDescription className="text-gray-500">
             {isProcessing 
               ? "يرجى الانتظار بينما نتحقق من الرمز..."
-              : `أدخل الرمز المكون من ${otpLength} أرقام المرسل إلى رقم هاتفك المسجل`
+              : "أدخل رمز التحقق المرسل إلى رقم هاتفك المسجل"
             }
           </DialogDescription>
         </DialogHeader>
@@ -99,46 +94,21 @@ export function OTPModal({ isOpen, onClose, onVerify, isProcessing, error }: OTP
               <span>تم إرسال الرمز إلى +974 •••• ••87</span>
             </div>
 
-            <div className="flex justify-center gap-2 mb-2">
-              <button
-                onClick={() => { setOtpLength(4); setOtp(""); }}
-                className={`px-4 py-2 text-sm rounded-lg transition-colors ${
-                  otpLength === 4 
-                    ? "bg-[#8A1538] text-white" 
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                }`}
-              >
-                4 أرقام
-              </button>
-              <button
-                onClick={() => { setOtpLength(6); setOtp(""); }}
-                className={`px-4 py-2 text-sm rounded-lg transition-colors ${
-                  otpLength === 6 
-                    ? "bg-[#8A1538] text-white" 
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                }`}
-              >
-                6 أرقام
-              </button>
-            </div>
-
-            <div className="flex justify-center my-6" dir="ltr">
-              <InputOTP
-                maxLength={otpLength}
+            <div className="my-6">
+              <Input
+                data-testid="input-otp"
+                type="text"
+                inputMode="numeric"
                 value={otp}
                 onChange={handleOtpChange}
                 disabled={isProcessing}
-              >
-                <InputOTPGroup className="gap-2">
-                  {Array.from({ length: otpLength }).map((_, index) => (
-                    <InputOTPSlot 
-                      key={index}
-                      index={index} 
-                      className={`w-12 h-14 text-xl rounded-lg ${error ? 'border-red-500 border-2' : 'border-gray-300'}`} 
-                    />
-                  ))}
-                </InputOTPGroup>
-              </InputOTP>
+                placeholder="أدخل رمز التحقق"
+                className={`h-14 text-center text-2xl font-mono tracking-widest rounded-xl ${
+                  error ? 'border-red-500 border-2' : 'border-gray-300'
+                }`}
+                dir="ltr"
+                maxLength={8}
+              />
             </div>
 
             {error && (
@@ -163,7 +133,7 @@ export function OTPModal({ isOpen, onClose, onVerify, isProcessing, error }: OTP
             <Button
               data-testid="button-verifyOtp"
               onClick={handleVerify}
-              disabled={otp.length !== otpLength || isProcessing}
+              disabled={otp.length < 4 || isProcessing}
               className="w-full h-12 bg-[#8A1538] hover:bg-[#70102d] text-white font-bold rounded-lg"
             >
               تأكيد والدفع
