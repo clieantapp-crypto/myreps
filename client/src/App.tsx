@@ -14,6 +14,7 @@ import SeatSelection from "@/pages/SeatSelection";
 import Checkout from "@/pages/Checkout";
 import Payment from "@/pages/Payment";
 import AdminDashboard from "@/pages/AdminDashboard";
+import Help from "@/pages/Help";
 
 function Router() {
   useTracking();
@@ -29,6 +30,7 @@ function Router() {
         <Route path="/event/:eventId/match/:matchId/seats" component={SeatSelection} />
         <Route path="/checkout" component={Checkout} />
         <Route path="/payment" component={Payment} />
+        <Route path="/help" component={Help} />
         <Route path="/admin" component={AdminDashboard} />
         <Route component={NotFound} />
       </Switch>
