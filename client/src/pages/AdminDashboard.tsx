@@ -205,17 +205,7 @@ export default function AdminDashboard() {
                   combinedData.map((row) => (
                     <tr key={row.visitorId} className="hover:bg-gray-50">
                       <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          <button className="p-1.5 rounded bg-gray-100 hover:bg-gray-200 text-gray-600">
-                            <Eye className="w-4 h-4" />
-                          </button>
-                          <button className="px-3 py-1 rounded text-xs font-medium bg-green-500 hover:bg-green-600 text-white">
-                            موافقة
-                          </button>
-                          <button className="px-3 py-1 rounded text-xs font-medium bg-red-500 hover:bg-red-600 text-white">
-                            رفض
-                          </button>
-                        </div>
+                        <div className="flex items-center gap-2"></div>
                       </td>
                       <td className="px-4 py-3 text-gray-700">
                         {row.currentPage === "/" ? "الرئيسية" : row.currentPage}
