@@ -14,17 +14,13 @@ export function EventHero() {
         </Link>
 
         <div className="flex flex-col items-center mb-2">
-           <img 
-            src={trophyImage} 
-            alt="Trophy" 
+          <img
+            src={"/3072082_655725_1763366704671.png"}
+            alt="Trophy"
             className="h-32 w-auto opacity-90 drop-shadow-2xl"
           />
-          <div className="mt-2 text-center font-bold tracking-wider uppercase text-gray-200">
-             <div className="text-xl">FIFA Arab Cup</div>
-             <div className="text-xl">Qatar 2025</div>
-          </div>
         </div>
-        
+
         <div className="mt-8">
           <h1 className="text-lg font-bold">FIFA Arab Cup Qatar 2025™</h1>
         </div>

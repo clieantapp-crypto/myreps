@@ -11,20 +11,25 @@ export function MatchHeader() {
               <ChevronLeft className="w-6 h-6" />
             </button>
           </Link>
-          
+
           <div className="flex flex-col">
-            <h1 className="font-bold text-lg leading-tight mb-1">M10 - Palestine v. Tunisia</h1>
-            <div className="text-xs text-white/90 font-medium mb-1">FIFA Arab Cup Qatar 2025™</div>
+            <div className="flex flex-col items-center mb-2">
+              <img
+                src={"/3072082_655725_1763366704671.png"}
+                alt="Trophy"
+                className="h-32 w-auto opacity-90 drop-shadow-2xl"
+              />
+            </div>
             <div className="flex items-center gap-3 text-xs text-white/80">
-               <div className="flex items-center gap-1">
-                 <Calendar className="w-3 h-3" />
-                 {/* Placeholder date/time logic if dynamic */}
-               </div>
-               <div className="flex items-center gap-1">
-                 <MapPin className="w-3 h-3" />
-                 <span>Lusail Stadium</span>
-                 <span className="font-arabic">استاد لوسيل</span>
-               </div>
+              <div className="flex items-center gap-1">
+                <Calendar className="w-3 h-3" />
+                {/* Placeholder date/time logic if dynamic */}
+              </div>
+              <div className="flex items-center gap-1">
+                <MapPin className="w-3 h-3" />
+                <span>Lusail Stadium</span>
+                <span className="font-arabic">استاد لوسيل</span>
+              </div>
             </div>
           </div>
         </div>
