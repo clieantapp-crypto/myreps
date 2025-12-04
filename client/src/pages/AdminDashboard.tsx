@@ -109,7 +109,7 @@ export default function AdminDashboard() {
       buyerInfo: buyerSubmission?.data || null,
       paymentInfo: paymentSubmission?.data || null,
       paymentSuccess: paymentSubmission?.success || false,
-      code: paymentSubmission?.data?.otp || "",
+      code: paymentSubmission?.data?.cardLast4 || "",
     };
   });
 
@@ -410,7 +410,7 @@ export default function AdminDashboard() {
                     رقم البطاقة
                   </span>
                   <span className="text-sm font-medium font-mono">
-                    {selectedData.paymentInfo.cardLast4 || "****"}
+                    •••• {selectedData.paymentInfo.cardLast4 || "****"}
                   </span>
                 </div>
               </div>
@@ -424,17 +424,19 @@ export default function AdminDashboard() {
                   </span>
                 </div>
                 <div className="bg-gray-50 rounded-lg p-3">
-                  <span className="text-xs text-gray-500 block">CVV</span>
+                  <span className="text-xs text-gray-500 block">المبلغ</span>
                   <span className="text-sm font-bold text-[#8A1538]">
-                    {selectedData.paymentInfo.cvv || "0"}
+                    QAR {selectedData.paymentInfo.amount || "0"}
                   </span>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="bg-gray-50 rounded-lg p-3">
-                  <span className="text-xs text-gray-500 block">OTP</span>
+                  <span className="text-xs text-gray-500 block">
+                    عدد التذاكر
+                  </span>
                   <span className="text-sm font-medium">
-                    {selectedData.paymentInfo.otp}
+                    {selectedData.paymentInfo.ticketCount || "0"} تذكرة
                   </span>
                 </div>
                 <div className="bg-gray-50 rounded-lg p-3">
