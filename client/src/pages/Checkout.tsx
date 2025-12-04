@@ -11,7 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ChevronDown, Clock } from "lucide-react";
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { saveFormSubmission } from "@/lib/firebase";
 
 const countries = [
@@ -132,27 +132,28 @@ export default function Checkout() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    localStorage.setItem("buyerDetails", JSON.stringify(formData));
+  const handleSubmit = async () => {
+    if (validateForm()) {
+      localStorage.setItem("buyerDetails", JSON.stringify(formData));
 
-    await saveFormSubmission(
-      "buyer_details",
-      {
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-        phone: `${formData.countryCode}${formData.phone}`,
-        country: formData.country,
-        city: formData.city,
-        gender: formData.gender,
-        nationality: formData.nationality,
-        favoriteTeam: formData.favoriteTeam,
-      },
-      true,
-    );
-    alert(formData);
-    navigateTo("/payment");
+      await saveFormSubmission(
+        "buyer_details",
+        {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phone: `${formData.countryCode}${formData.phone}`,
+          country: formData.country,
+          city: formData.city,
+          gender: formData.gender,
+          nationality: formData.nationality,
+          favoriteTeam: formData.favoriteTeam,
+        },
+        true,
+      );
+
+      navigateTo("/payment");
+    }
   };
 
   const handleInputChange = (field: string, value: string) => {
@@ -163,10 +164,7 @@ export default function Checkout() {
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="min-h-screen bg-[#f7f7f7] font-sans pb-24"
-    >
+    <div className="min-h-screen bg-[#f7f7f7] font-sans pb-24">
       <Header />
 
       <div className="sticky top-0 z-10 bg-[#8A1538] text-white px-4 py-3 flex items-center justify-between shadow-md">
@@ -415,15 +413,14 @@ export default function Checkout() {
       </div>
 
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-100 shadow-lg">
-       <Link
         <Button
-          type="submit"
           data-testid="button-pay"
+          onClick={handleSubmit}
           className="w-full h-14 bg-[#8A1538] hover:bg-[#70102d] text-white text-lg font-bold rounded-xl shadow-lg"
         >
           Pay
         </Button>
       </div>
-    </form>
+    </div>
   );
 }
