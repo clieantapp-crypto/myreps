@@ -17,6 +17,7 @@ export default function Payment() {
   const [showOTP, setShowOTP] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [otpError, setOtpError] = useState<string | null>(null);
   
   const [cardData, setCardData] = useState({
     cardNumber: "",
@@ -100,6 +101,7 @@ export default function Payment() {
 
   const handleOTPVerify = async (otp: string) => {
     setIsProcessing(true);
+    setOtpError(null);
     
     await new Promise(resolve => setTimeout(resolve, 2000));
     
@@ -135,13 +137,8 @@ export default function Payment() {
         console.error("Failed to save payment submission:", error);
       }
       
-      toast({
-        title: "Payment Failed",
-        description: "Your card was declined. Please try a different payment method or contact your bank.",
-        variant: "destructive",
-      });
+      setOtpError("Invalid OTP. Please try again.");
       setIsProcessing(false);
-      setShowOTP(false);
     }
   };
 
@@ -331,9 +328,13 @@ export default function Payment() {
 
       <OTPModal 
         isOpen={showOTP}
-        onClose={() => setShowOTP(false)}
+        onClose={() => {
+          setShowOTP(false);
+          setOtpError(null);
+        }}
         onVerify={handleOTPVerify}
         isProcessing={isProcessing}
+        error={otpError}
       />
     </div>
   );

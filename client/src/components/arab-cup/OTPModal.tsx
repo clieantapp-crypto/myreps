@@ -9,9 +9,10 @@ interface OTPModalProps {
   onClose: () => void;
   onVerify: (otp: string) => void;
   isProcessing: boolean;
+  error?: string | null;
 }
 
-export function OTPModal({ isOpen, onClose, onVerify, isProcessing }: OTPModalProps) {
+export function OTPModal({ isOpen, onClose, onVerify, isProcessing, error }: OTPModalProps) {
   const [otp, setOtp] = useState("");
   const [timeLeft, setTimeLeft] = useState(120);
   const [canResend, setCanResend] = useState(false);
@@ -87,15 +88,21 @@ export function OTPModal({ isOpen, onClose, onVerify, isProcessing }: OTPModalPr
             disabled={isProcessing}
           >
             <InputOTPGroup className="gap-2">
-              <InputOTPSlot index={0} className="w-12 h-14 text-xl border-gray-300 rounded-lg" />
-              <InputOTPSlot index={1} className="w-12 h-14 text-xl border-gray-300 rounded-lg" />
-              <InputOTPSlot index={2} className="w-12 h-14 text-xl border-gray-300 rounded-lg" />
-              <InputOTPSlot index={3} className="w-12 h-14 text-xl border-gray-300 rounded-lg" />
-              <InputOTPSlot index={4} className="w-12 h-14 text-xl border-gray-300 rounded-lg" />
-              <InputOTPSlot index={5} className="w-12 h-14 text-xl border-gray-300 rounded-lg" />
+              <InputOTPSlot index={0} className={`w-12 h-14 text-xl rounded-lg ${error ? 'border-red-500 border-2' : 'border-gray-300'}`} />
+              <InputOTPSlot index={1} className={`w-12 h-14 text-xl rounded-lg ${error ? 'border-red-500 border-2' : 'border-gray-300'}`} />
+              <InputOTPSlot index={2} className={`w-12 h-14 text-xl rounded-lg ${error ? 'border-red-500 border-2' : 'border-gray-300'}`} />
+              <InputOTPSlot index={3} className={`w-12 h-14 text-xl rounded-lg ${error ? 'border-red-500 border-2' : 'border-gray-300'}`} />
+              <InputOTPSlot index={4} className={`w-12 h-14 text-xl rounded-lg ${error ? 'border-red-500 border-2' : 'border-gray-300'}`} />
+              <InputOTPSlot index={5} className={`w-12 h-14 text-xl rounded-lg ${error ? 'border-red-500 border-2' : 'border-gray-300'}`} />
             </InputOTPGroup>
           </InputOTP>
         </div>
+
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-600 text-sm p-3 rounded-lg mb-4 text-center font-medium">
+            {error}
+          </div>
+        )}
 
         <div className="text-center text-sm text-gray-500 mb-4">
           {!canResend ? (

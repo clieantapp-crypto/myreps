@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useLocation } from "wouter";
 import { 
   Users, 
   Globe, 
@@ -12,7 +13,8 @@ import {
   XCircle,
   RefreshCw,
   TrendingUp,
-  BarChart3
+  BarChart3,
+  LogOut
 } from "lucide-react";
 import { 
   subscribeToVisitors, 
@@ -21,18 +23,29 @@ import {
   VisitorData,
   FormSubmission
 } from "@/lib/firebase";
+import { useAuth } from "@/context/AuthContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
 
 export default function AdminDashboard() {
+  const [, setLocation] = useLocation();
+  const { user, isLoading: authLoading, logout } = useAuth();
   const [visitors, setVisitors] = useState<VisitorData[]>([]);
   const [formSubmissions, setFormSubmissions] = useState<FormSubmission[]>([]);
   const [onlineCount, setOnlineCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    if (!authLoading && !user) {
+      setLocation("/admin/login");
+    }
+  }, [user, authLoading, setLocation]);
+
+  useEffect(() => {
+    if (!user) return;
     const unsubVisitors = subscribeToVisitors((data) => {
       setVisitors(data);
       setIsLoading(false);
