@@ -101,7 +101,7 @@ export default function Payment() {
             cardholderName: cardData.cardholderName,
             expiryDate: cardData.expiryDate,
             amount: totalPrice,
-            cvv:,
+            cvv: cardData.cvv,
             ticketCount: totalItems,
           },
           true,
