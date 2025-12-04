@@ -15,12 +15,12 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
   const navigateTo = useCallback((path: string) => {
     setIsNavigating(true);
     
-    setTimeout(() => {
-      setLocation(path);
+    requestAnimationFrame(() => {
       setTimeout(() => {
+        setLocation(path);
         setIsNavigating(false);
-      }, 300);
-    }, 200);
+      }, 150);
+    });
   }, [setLocation]);
 
   return (
