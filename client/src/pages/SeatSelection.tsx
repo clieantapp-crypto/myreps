@@ -68,7 +68,7 @@ export default function SeatSelection() {
         <img
           src={stadiumMap}
           alt="Stadium Map"
-          className="w-full max-w-xs object-contain"
+          className="w-full max-w-xl object-contain"
         />
         <div className="absolute top-6 right-4 flex flex-col gap-2 text-[10px] font-bold uppercase">
           <div className="flex items-center gap-1.5">

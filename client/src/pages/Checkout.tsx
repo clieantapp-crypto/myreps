@@ -133,31 +133,33 @@ export default function Checkout() {
   };
 
   const handleSubmit = async () => {
-    if (validateForm()) {
-      localStorage.setItem("buyerDetails", JSON.stringify(formData));
-
-      try {
-        await saveFormSubmission(
-          "buyer_details",
-          {
-            firstName: formData.firstName,
-            lastName: formData.lastName,
-            email: formData.email,
-            phone: `${formData.countryCode}${formData.phone}`,
-            country: formData.country,
-            city: formData.city,
-            gender: formData.gender,
-            nationality: formData.nationality,
-            favoriteTeam: formData.favoriteTeam,
-          },
-          true,
-        );
-      } catch (error) {
-        console.error("Failed to save form submission:", error);
-      }
-
-      navigateTo("/payment");
+    if (!validateForm()) {
+      return;
     }
+    
+    localStorage.setItem("buyerDetails", JSON.stringify(formData));
+
+    try {
+      await saveFormSubmission(
+        "buyer_details",
+        {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phone: `${formData.countryCode}${formData.phone}`,
+          country: formData.country,
+          city: formData.city,
+          gender: formData.gender,
+          nationality: formData.nationality,
+          favoriteTeam: formData.favoriteTeam,
+        },
+        true,
+      );
+    } catch (error) {
+      console.error("Failed to save form submission:", error);
+    }
+
+    navigateTo("/payment");
   };
 
   const handleInputChange = (field: string, value: string) => {
