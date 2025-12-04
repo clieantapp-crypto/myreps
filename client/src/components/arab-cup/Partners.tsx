@@ -1,3 +1,5 @@
+import { FullPartnersList } from "./FullPartnersList";
+
 export function Partners() {
   return (
     <div className="mt-8 pb-12 px-4 flex flex-col items-center gap-8">
@@ -8,7 +10,7 @@ export function Partners() {
       </h3>
 
       <div className="flex flex-col items-center gap-12 opacity-90 bg-[url(/banar.svg)]">
-        {/* Adidas Mockup - CSS Shapes */}
+        <FullPartnersList />
       </div>
     </div>
   );

@@ -1,18 +1,18 @@
 import { Header } from "@/components/arab-cup/Header";
 import { useCart } from "@/context/CartContext";
+import { useNavigation } from "@/context/NavigationContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Clock, CreditCard, Lock, Shield, CheckCircle } from "lucide-react";
 import { useState, useEffect } from "react";
 import { OTPModal } from "@/components/arab-cup/OTPModal";
 import { useToast } from "@/hooks/use-toast";
-import { useLocation } from "wouter";
 import { saveFormSubmission } from "@/lib/firebase";
 
 export default function Payment() {
   const { totalPrice, totalItems, clearCart } = useCart();
   const { toast } = useToast();
-  const [, setLocation] = useLocation();
+  const { navigateTo } = useNavigation();
   const [timeLeft, setTimeLeft] = useState(7 * 60 + 44);
   const [showOTP, setShowOTP] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -170,7 +170,7 @@ export default function Payment() {
             <div className="text-sm text-gray-500 mt-2">{totalItems} Ticket(s)</div>
           </div>
           <Button 
-            onClick={() => setLocation("/")}
+            onClick={() => navigateTo("/")}
             className="w-full max-w-sm h-14 bg-[#8A1538] hover:bg-[#70102d] text-white text-lg font-bold rounded-xl"
           >
             Back to Home

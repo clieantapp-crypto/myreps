@@ -1,11 +1,11 @@
 import { Header } from "@/components/arab-cup/Header";
 import { useCart } from "@/context/CartContext";
+import { useNavigation } from "@/context/NavigationContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ChevronDown, Clock } from "lucide-react";
 import { useState, useEffect } from "react";
-import { useLocation } from "wouter";
 import { saveFormSubmission } from "@/lib/firebase";
 
 const countries = [
@@ -33,7 +33,7 @@ const teams = [
 
 export default function Checkout() {
   const { totalPrice, totalItems } = useCart();
-  const [, setLocation] = useLocation();
+  const { navigateTo } = useNavigation();
   const [timeLeft, setTimeLeft] = useState(8 * 60);
   const [isExpanded, setIsExpanded] = useState(false);
   
@@ -106,7 +106,7 @@ export default function Checkout() {
         favoriteTeam: formData.favoriteTeam,
       }, true);
       
-      setLocation("/payment");
+      navigateTo("/payment");
     }
   };
 

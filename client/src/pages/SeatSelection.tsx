@@ -17,8 +17,9 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useParams, useLocation } from "wouter";
+import { useParams } from "wouter";
 import { useCart, CartItemWithDetails } from "@/context/CartContext";
+import { useNavigation } from "@/context/NavigationContext";
 import { Button } from "@/components/ui/button";
 
 const categoryImages: Record<string, string> = {
@@ -29,7 +30,7 @@ const categoryImages: Record<string, string> = {
 
 export default function SeatSelection() {
   const params = useParams();
-  const [, setLocation] = useLocation();
+  const { navigateTo } = useNavigation();
   const matchId = params.id || params.matchId;
   const { items, totalItems, totalPrice, removeItem, updateQuantity } =
     useCart();
@@ -55,7 +56,7 @@ export default function SeatSelection() {
 
   const handleBuyTickets = () => {
     if (totalItems > 0) {
-      setLocation("/checkout");
+      navigateTo("/checkout");
     }
   };
 
