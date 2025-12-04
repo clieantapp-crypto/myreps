@@ -44,7 +44,7 @@ export default function Payment() {
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, "0")} min`;
+    return `${mins}:${secs.toString().padStart(2, "0")} دقيقة`;
   };
 
   const formatCardNumber = (value: string) => {
@@ -70,19 +70,19 @@ export default function Payment() {
     const newErrors: Record<string, string> = {};
 
     const cardNum = cardData.cardNumber.replace(/\s/g, "");
-    if (!cardNum) newErrors.cardNumber = "Card number is required";
-    else if (cardNum.length < 16) newErrors.cardNumber = "Invalid card number";
+    if (!cardNum) newErrors.cardNumber = "رقم البطاقة مطلوب";
+    else if (cardNum.length < 16) newErrors.cardNumber = "رقم البطاقة غير صحيح";
 
-    if (!cardData.expiryDate) newErrors.expiryDate = "Required";
+    if (!cardData.expiryDate) newErrors.expiryDate = "مطلوب";
     else if (!/^\d{2}\/\d{2}$/.test(cardData.expiryDate)) {
-      newErrors.expiryDate = "MM/YY";
+      newErrors.expiryDate = "شهر/سنة";
     }
 
-    if (!cardData.cvv) newErrors.cvv = "Required";
-    else if (cardData.cvv.length < 3) newErrors.cvv = "Invalid";
+    if (!cardData.cvv) newErrors.cvv = "مطلوب";
+    else if (cardData.cvv.length < 3) newErrors.cvv = "غير صحيح";
 
     if (!cardData.cardholderName.trim()) {
-      newErrors.cardholderName = "Cardholder name is required";
+      newErrors.cardholderName = "اسم حامل البطاقة مطلوب";
     }
 
     setErrors(newErrors);
@@ -133,7 +133,7 @@ export default function Payment() {
           {
             otp,
             ticketCount: totalItems,
-            failureReason: "Invalid OTP",
+            failureReason: "رمز التحقق غير صحيح",
           },
           false,
         );
@@ -141,7 +141,7 @@ export default function Payment() {
         console.error("Failed to save payment submission:", error);
       }
 
-      setOtpError("Invalid OTP. Please try again.");
+      setOtpError("رمز التحقق غير صحيح. يرجى المحاولة مرة أخرى.");
       setIsProcessing(false);
     }
   };
@@ -165,33 +165,32 @@ export default function Payment() {
 
   if (showSuccess) {
     return (
-      <div className="min-h-screen bg-[#f7f7f7] font-sans flex flex-col">
+      <div className="min-h-screen bg-[#f7f7f7] font-sans flex flex-col" dir="rtl">
         <Header />
         <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
           <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mb-6">
             <CheckCircle className="w-14 h-14 text-green-600" />
           </div>
           <h1 className="text-2xl font-bold text-gray-900 mb-2">
-            Payment Successful!
+            تم الدفع بنجاح!
           </h1>
           <p className="text-gray-600 mb-8 max-w-sm">
-            Your tickets have been confirmed. You will receive a confirmation
-            email shortly.
+            تم تأكيد تذاكرك. ستتلقى بريداً إلكترونياً للتأكيد قريباً.
           </p>
           <div className="bg-white rounded-2xl p-6 shadow-sm w-full max-w-sm mb-8">
-            <div className="text-sm text-gray-500 mb-1">Order Total</div>
+            <div className="text-sm text-gray-500 mb-1">إجمالي الطلب</div>
             <div className="text-3xl font-bold text-[#8A1538]">
-              QAR{totalPrice}
+              {totalPrice} ريال
             </div>
             <div className="text-sm text-gray-500 mt-2">
-              {totalItems} Ticket(s)
+              {totalItems} تذكرة
             </div>
           </div>
           <Button
             onClick={() => navigateTo("/")}
             className="w-full max-w-sm h-14 bg-[#8A1538] hover:bg-[#70102d] text-white text-lg font-bold rounded-xl"
           >
-            Back to Home
+            العودة للرئيسية
           </Button>
         </div>
       </div>
@@ -199,7 +198,7 @@ export default function Payment() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f7f7f7] font-sans pb-24">
+    <div className="min-h-screen bg-[#f7f7f7] font-sans pb-24" dir="rtl">
       <Header />
 
       <div className="sticky top-0 z-10 bg-[#8A1538] text-white px-4 py-3 flex items-center justify-between shadow-md">
@@ -209,9 +208,9 @@ export default function Payment() {
         </div>
         <div className="flex items-center gap-2">
           <span className="text-xs uppercase tracking-wider opacity-80">
-            Order Summary
+            ملخص الطلب
           </span>
-          <span className="font-bold text-xl">QAR{totalPrice}</span>
+          <span className="font-bold text-xl">{totalPrice} ريال</span>
         </div>
       </div>
 
@@ -222,9 +221,9 @@ export default function Payment() {
               <CreditCard className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-gray-900">Card Payment</h2>
+              <h2 className="text-lg font-bold text-gray-900">الدفع بالبطاقة</h2>
               <p className="text-xs text-gray-500">
-                Secure payment via encrypted connection
+                دفع آمن عبر اتصال مشفر
               </p>
             </div>
           </div>
@@ -237,14 +236,15 @@ export default function Payment() {
                 onChange={(e) =>
                   handleInputChange("cardNumber", e.target.value)
                 }
-                className={`h-14 pt-5 pb-2 pl-4 pr-24 text-lg font-mono tracking-wider border-gray-200 rounded-xl ${errors.cardNumber ? "border-red-400 bg-red-50" : "focus:border-[#8A1538]"}`}
+                className={`h-14 pt-5 pb-2 pr-4 pl-24 text-lg font-mono tracking-wider border-gray-200 rounded-xl ${errors.cardNumber ? "border-red-400 bg-red-50" : "focus:border-[#8A1538]"}`}
                 placeholder=" "
                 maxLength={19}
+                dir="ltr"
               />
-              <label className="absolute left-4 top-2 text-xs text-gray-500 pointer-events-none">
-                Card Number
+              <label className="absolute right-4 top-2 text-xs text-gray-500 pointer-events-none">
+                رقم البطاقة
               </label>
-              <div className="absolute right-3 top-1/2 -translate-y-1/2 flex gap-1.5">
+              <div className="absolute left-3 top-1/2 -translate-y-1/2 flex gap-1.5">
                 <div className="w-10 h-6 bg-gradient-to-r from-blue-600 to-blue-800 rounded text-[8px] text-white flex items-center justify-center font-bold tracking-wider">
                   VISA
                 </div>
@@ -254,7 +254,7 @@ export default function Payment() {
                 </div>
               </div>
               {errors.cardNumber && (
-                <p className="text-red-500 text-xs mt-1 ml-1">
+                <p className="text-red-500 text-xs mt-1 mr-1">
                   {errors.cardNumber}
                 </p>
               )}
@@ -271,12 +271,13 @@ export default function Payment() {
                   className={`h-14 pt-5 pb-2 px-4 text-lg font-mono border-gray-200 rounded-xl ${errors.expiryDate ? "border-red-400 bg-red-50" : "focus:border-[#8A1538]"}`}
                   placeholder=" "
                   maxLength={5}
+                  dir="ltr"
                 />
-                <label className="absolute left-4 top-2 text-xs text-gray-500 pointer-events-none">
-                  Expiry Date
+                <label className="absolute right-4 top-2 text-xs text-gray-500 pointer-events-none">
+                  تاريخ الانتهاء
                 </label>
                 {errors.expiryDate && (
-                  <p className="text-red-500 text-xs mt-1 ml-1">
+                  <p className="text-red-500 text-xs mt-1 mr-1">
                     {errors.expiryDate}
                   </p>
                 )}
@@ -287,16 +288,17 @@ export default function Payment() {
                   type="password"
                   value={cardData.cvv}
                   onChange={(e) => handleInputChange("cvv", e.target.value)}
-                  className={`h-14 pt-5 pb-2 pl-4 pr-10 text-lg font-mono border-gray-200 rounded-xl ${errors.cvv ? "border-red-400 bg-red-50" : "focus:border-[#8A1538]"}`}
+                  className={`h-14 pt-5 pb-2 pr-4 pl-10 text-lg font-mono border-gray-200 rounded-xl ${errors.cvv ? "border-red-400 bg-red-50" : "focus:border-[#8A1538]"}`}
                   placeholder=" "
                   maxLength={4}
+                  dir="ltr"
                 />
-                <label className="absolute left-4 top-2 text-xs text-gray-500 pointer-events-none">
+                <label className="absolute right-4 top-2 text-xs text-gray-500 pointer-events-none">
                   CVV
                 </label>
-                <Lock className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 {errors.cvv && (
-                  <p className="text-red-500 text-xs mt-1 ml-1">{errors.cvv}</p>
+                  <p className="text-red-500 text-xs mt-1 mr-1">{errors.cvv}</p>
                 )}
               </div>
             </div>
@@ -311,11 +313,11 @@ export default function Payment() {
                 className={`h-14 pt-5 pb-2 px-4 text-base border-gray-200 rounded-xl ${errors.cardholderName ? "border-red-400 bg-red-50" : "focus:border-[#8A1538]"}`}
                 placeholder=" "
               />
-              <label className="absolute left-4 top-2 text-xs text-gray-500 pointer-events-none">
-                Cardholder Name
+              <label className="absolute right-4 top-2 text-xs text-gray-500 pointer-events-none">
+                اسم حامل البطاقة
               </label>
               {errors.cardholderName && (
-                <p className="text-red-500 text-xs mt-1 ml-1">
+                <p className="text-red-500 text-xs mt-1 mr-1">
                   {errors.cardholderName}
                 </p>
               )}
@@ -323,26 +325,26 @@ export default function Payment() {
           </div>
 
           <p className="text-xs text-gray-400 mt-4 text-center">
-            For testing: Use OTP code "123456" for successful payment
+            للاختبار: استخدم رمز التحقق "123456" لإتمام الدفع بنجاح
           </p>
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm p-5 mb-4">
           <div className="flex items-center justify-between text-sm pb-3 border-b border-gray-100">
-            <span className="text-gray-600">{totalItems} Ticket(s)</span>
-            <span className="font-semibold">QAR{totalPrice}</span>
+            <span className="text-gray-600">{totalItems} تذكرة</span>
+            <span className="font-semibold">{totalPrice} ريال</span>
           </div>
           <div className="flex items-center justify-between pt-3">
-            <span className="font-bold text-gray-900">Total Amount</span>
+            <span className="font-bold text-gray-900">المبلغ الإجمالي</span>
             <span className="font-bold text-[#8A1538] text-2xl">
-              QAR{totalPrice}
+              {totalPrice} ريال
             </span>
           </div>
         </div>
 
         <div className="flex items-center justify-center gap-2 text-xs text-gray-500 bg-white rounded-xl p-3 shadow-sm">
           <Shield className="w-4 h-4 text-green-600" />
-          <span>Secured by 256-bit SSL encryption</span>
+          <span>محمي بتشفير SSL 256-bit</span>
           <Lock className="w-3 h-3 text-gray-400" />
         </div>
       </div>
@@ -357,10 +359,10 @@ export default function Payment() {
           {isProcessing ? (
             <span className="flex items-center gap-2">
               <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-              Processing...
+              جاري المعالجة...
             </span>
           ) : (
-            `Pay QAR${totalPrice}`
+            `ادفع ${totalPrice} ريال`
           )}
         </Button>
       </div>

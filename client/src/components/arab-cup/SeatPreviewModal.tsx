@@ -40,15 +40,15 @@ export function SeatPreviewModal({
     try {
       await addToCart(matchId, categoryId, quantity);
       toast({
-        title: "Added to cart",
-        description: `${quantity} ticket(s) for ${category} added to your cart.`,
+        title: "تمت الإضافة للسلة",
+        description: `تمت إضافة ${quantity} تذكرة لـ ${category} إلى سلتك.`,
       });
       setQuantity(1);
       onClose();
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to add tickets to cart. Please try again.",
+        title: "خطأ",
+        description: "فشل إضافة التذاكر للسلة. يرجى المحاولة مرة أخرى.",
         variant: "destructive",
       });
     } finally {
@@ -63,7 +63,7 @@ export function SeatPreviewModal({
         <Drawer.Content className="bg-white flex flex-col rounded-t-[10px] h-[96vh] mt-24 fixed bottom-0 left-0 right-0 z-50 focus:outline-none">
           <button 
             onClick={onClose}
-            className="absolute top-4 right-4 z-50 p-2 bg-black/20 hover:bg-black/40 rounded-full text-white transition-colors"
+            className="absolute top-4 left-4 z-50 p-2 bg-black/20 hover:bg-black/40 rounded-full text-white transition-colors"
           >
             <X className="w-6 h-6" />
           </button>
@@ -71,28 +71,28 @@ export function SeatPreviewModal({
           <div className="w-full h-[35vh] relative shrink-0">
              <img 
                src={imageSrc} 
-               alt="Seat View" 
+               alt="منظر المقعد" 
                className="w-full h-full object-cover"
              />
              <div className="absolute inset-0 bg-gradient-to-b from-black/30 to-transparent" />
           </div>
 
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 overflow-y-auto" dir="rtl">
             <div className="p-6 pb-32">
               <div className="mb-8 border-b border-gray-100 pb-6">
                 <h2 className="text-lg font-bold text-gray-900 mb-1">{category}</h2>
                 <div className="text-xl font-bold text-gray-600">{price}</div>
               </div>
 
-              <h3 className="text-lg font-bold text-gray-900 mb-6">What's included</h3>
+              <h3 className="text-lg font-bold text-gray-900 mb-6">ما المتضمن</h3>
               
               <div className="space-y-8">
                  <div className="flex gap-4">
                     <Eye className="w-6 h-6 text-gray-800 shrink-0" />
                     <div>
-                       <div className="font-bold text-gray-900 mb-1">Ticket delivery</div>
+                       <div className="font-bold text-gray-900 mb-1">توصيل التذاكر</div>
                        <div className="text-sm text-gray-600 leading-relaxed">
-                         Tickets available in the Road to Qatar app
+                         التذاكر متاحة في تطبيق Road to Qatar
                        </div>
                     </div>
                  </div>
@@ -100,9 +100,9 @@ export function SeatPreviewModal({
                  <div className="flex gap-4">
                     <Armchair className="w-6 h-6 text-gray-800 shrink-0" />
                     <div>
-                       <div className="font-bold text-gray-900 mb-1">Seat allocation</div>
+                       <div className="font-bold text-gray-900 mb-1">تخصيص المقعد</div>
                        <div className="text-sm text-gray-600 leading-relaxed">
-                         Seat assignment anywhere within the chosen category
+                         تعيين المقعد في أي مكان ضمن الفئة المختارة
                        </div>
                     </div>
                  </div>
@@ -110,9 +110,9 @@ export function SeatPreviewModal({
                  <div className="flex gap-4">
                     <MapPin className="w-6 h-6 text-gray-800 shrink-0" />
                     <div>
-                       <div className="font-bold text-gray-900 mb-1">Sit together guarantee</div>
+                       <div className="font-bold text-gray-900 mb-1">ضمان الجلوس معاً</div>
                        <div className="text-sm text-gray-600 leading-relaxed">
-                         Tickets bought together are always seated together
+                         التذاكر المشتراة معاً تُجلس دائماً معاً
                        </div>
                     </div>
                  </div>
@@ -120,9 +120,9 @@ export function SeatPreviewModal({
                  <div className="flex gap-4">
                     <Ticket className="w-6 h-6 text-gray-800 shrink-0" />
                     <div>
-                       <div className="font-bold text-gray-900 mb-1">Verified tickets</div>
+                       <div className="font-bold text-gray-900 mb-1">تذاكر موثقة</div>
                        <div className="text-sm text-gray-600 leading-relaxed">
-                         Tickets are reviewed and verified by the venue
+                         التذاكر يتم مراجعتها والتحقق منها من قبل المكان
                        </div>
                     </div>
                  </div>
@@ -130,7 +130,7 @@ export function SeatPreviewModal({
             </div>
           </div>
 
-          <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 safe-area-pb">
+          <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 safe-area-pb" dir="rtl">
              <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-4">
                    <button 
@@ -150,7 +150,7 @@ export function SeatPreviewModal({
                 </div>
                 
                 <div className="text-xl font-bold text-gray-900">
-                   QAR{total}
+                   {total} ريال
                 </div>
              </div>
 
@@ -159,7 +159,7 @@ export function SeatPreviewModal({
                onClick={handleAddToCart}
                disabled={isAdding}
              >
-                {isAdding ? "Adding..." : "Add to Cart"}
+                {isAdding ? "جاري الإضافة..." : "أضف للسلة"}
              </Button>
           </div>
         </Drawer.Content>

@@ -16,23 +16,23 @@ export default function EventDetails() {
   });
 
   return (
-    <div className="min-h-screen bg-white font-sans pb-10">
+    <div className="min-h-screen bg-white font-sans pb-10" dir="rtl">
       <Header />
       <EventHero />
       
       <div className="px-4 mt-6">
-        <h2 className="text-xl font-bold text-[#8A1538] mb-4">Matches</h2>
+        <h2 className="text-xl font-bold text-[#8A1538] mb-4">المباريات</h2>
         
         <Button 
           variant="outline" 
           className="mb-6 h-10 bg-white border-gray-300 text-gray-700 hover:bg-gray-50 justify-start px-4 font-medium w-auto"
         >
-          <Calendar className="mr-2 h-4 w-4 text-gray-600" />
-          Search by date
+          <Calendar className="ml-2 h-4 w-4 text-gray-600" />
+          البحث حسب التاريخ
         </Button>
 
         {isLoading ? (
-          <div className="text-center py-10 text-gray-500">Loading matches...</div>
+          <div className="text-center py-10 text-gray-500">جاري تحميل المباريات...</div>
         ) : (
           matches?.map((match: any) => (
             <MatchCard 
@@ -40,10 +40,10 @@ export default function EventDetails() {
               id={match.id.toString()}
               date={match.date}
               dayTime={`${match.dayOfWeek} - ${match.time}`}
-              matchTitle={`${match.matchCode} - ${match.homeTeam} v. ${match.awayTeam}`}
+              matchTitle={`${match.matchCode} - ${match.homeTeam} ضد ${match.awayTeam}`}
               stadium={match.stadium}
               stadiumAr={match.stadiumAr || ""}
-              price={`QAR${match.basePrice}`}
+              price={`${match.basePrice} ريال`}
               status={match.status}
             />
           ))

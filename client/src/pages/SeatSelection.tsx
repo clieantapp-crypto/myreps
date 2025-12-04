@@ -61,27 +61,27 @@ export default function SeatSelection() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f7f7f7] font-sans pb-32">
+    <div className="min-h-screen bg-[#f7f7f7] font-sans pb-32" dir="rtl">
       <MatchHeader />
 
       <div className="w-full bg-white p-6 flex justify-center items-center min-h-[280px] relative shadow-sm">
         <img
           src={stadiumMap}
-          alt="Stadium Map"
+          alt="خريطة الملعب"
           className="w-full max-w-xl object-contain"
         />
-        <div className="absolute top-6 right-4 flex flex-col gap-2 text-[10px] font-bold uppercase">
+        <div className="absolute top-6 left-4 flex flex-col gap-2 text-[10px] font-bold uppercase">
           <div className="flex items-center gap-1.5">
             <div className="w-1 h-3 bg-[#1e3a8a] rounded-full"></div>
-            <span className="text-gray-700">CAT 1</span>
+            <span className="text-gray-700">الفئة ١</span>
           </div>
           <div className="flex items-center gap-1.5">
             <div className="w-1 h-3 bg-[#84cc16] rounded-full"></div>
-            <span className="text-gray-700">CAT 2</span>
+            <span className="text-gray-700">الفئة ٢</span>
           </div>
           <div className="flex items-center gap-1.5">
             <div className="w-1 h-3 bg-[#dc2626] rounded-full"></div>
-            <span className="text-gray-700">CAT 3</span>
+            <span className="text-gray-700">الفئة ٣</span>
           </div>
         </div>
       </div>
@@ -97,7 +97,7 @@ export default function SeatSelection() {
                 : "text-gray-500 hover:text-gray-700"
             }`}
           >
-            <span className="text-gray-400">:::</span> Price list
+            <span className="text-gray-400">:::</span> قائمة الأسعار
           </button>
           <button
             data-testid="tab-yourTickets"
@@ -108,7 +108,7 @@ export default function SeatSelection() {
                 : "text-gray-500 hover:text-gray-700"
             }`}
           >
-            <Ticket className="w-4 h-4" /> Your tickets
+            <Ticket className="w-4 h-4" /> تذاكرك
             {totalItems > 0 && (
               <span className="bg-[#8A1538] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
                 {totalItems}
@@ -120,16 +120,16 @@ export default function SeatSelection() {
 
       {activeTab === "price" && (
         <>
-          <div className="px-4 mb-4 flex justify-end">
+          <div className="px-4 mb-4 flex justify-start">
             <button className="text-xs font-medium text-gray-500 flex items-center gap-1 hover:text-gray-700">
-              Sort by price <ArrowDownAZ className="w-3 h-3" />
+              ترتيب حسب السعر <ArrowDownAZ className="w-3 h-3" />
             </button>
           </div>
 
           <div className="px-4">
             {isLoading ? (
               <div className="text-center py-10 text-gray-500">
-                Loading seat categories...
+                جاري تحميل فئات المقاعد...
               </div>
             ) : (
               categories?.map((category: any) => {
@@ -140,7 +140,7 @@ export default function SeatSelection() {
                     key={category.id}
                     category={category.category}
                     price={
-                      category.available ? `QAR${category.price}` : undefined
+                      category.available ? `${category.price} ريال` : undefined
                     }
                     imageSrc={imageSrc}
                     color={category.colorCode}
@@ -151,7 +151,7 @@ export default function SeatSelection() {
                             setSelectedCategory({
                               id: category.id,
                               category: category.category,
-                              price: `QAR${category.price}`,
+                              price: `${category.price} ريال`,
                               imageSrc,
                             })
                         : undefined
@@ -164,7 +164,7 @@ export default function SeatSelection() {
             <div className="mt-6 flex gap-3 items-start text-xs text-[#008CBA] bg-blue-50 rounded-xl p-4">
               <Accessibility className="w-5 h-5 shrink-0" />
               <div className="leading-relaxed">
-                Accessibility tickets are available by emailing <br />
+                تذاكر ذوي الاحتياجات الخاصة متاحة عبر البريد الإلكتروني <br />
                 <span className="underline font-medium">
                   accessibility.tickets@sc.qa
                 </span>
@@ -182,10 +182,10 @@ export default function SeatSelection() {
                 <Ticket className="w-10 h-10 text-gray-400" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                No tickets selected
+                لم يتم اختيار تذاكر
               </h3>
               <p className="text-gray-500 text-sm">
-                Select tickets from the price list to add them to your cart
+                اختر التذاكر من قائمة الأسعار لإضافتها إلى سلتك
               </p>
             </div>
           ) : (
@@ -198,10 +198,10 @@ export default function SeatSelection() {
                   <div className="flex items-start justify-between mb-2">
                     <div>
                       <span className="text-sm font-bold text-gray-900">
-                        {item.categoryName || "Category"}
+                        {item.categoryName || "الفئة"}
                       </span>
                       <div className="text-xs text-gray-500 mt-0.5">
-                        {item.matchCode} - {item.homeTeam} v. {item.awayTeam}
+                        {item.matchCode} - {item.homeTeam} ضد {item.awayTeam}
                       </div>
                       <div className="text-xs text-gray-400 mt-0.5">
                         {item.date} • {item.time}
@@ -243,7 +243,7 @@ export default function SeatSelection() {
                       </button>
                     </div>
                     <span className="text-lg font-bold text-[#8A1538]">
-                      QAR{(item.price || 0) * item.quantity}
+                      {(item.price || 0) * item.quantity} ريال
                     </span>
                   </div>
                 </div>
@@ -264,10 +264,10 @@ export default function SeatSelection() {
                 className={`w-4 h-4 transition-transform ${showCartSummary ? "rotate-180" : ""}`}
               />
               <Ticket className="w-4 h-4" />
-              <span className="font-semibold">{totalItems} Tickets</span>
+              <span className="font-semibold">{totalItems} تذاكر</span>
             </div>
             <span className="text-lg font-bold text-gray-900">
-              QAR{totalPrice}
+              {totalPrice} ريال
             </span>
           </button>
 
@@ -282,7 +282,7 @@ export default function SeatSelection() {
                     {item.quantity}x {item.categoryName}
                   </span>
                   <span className="font-medium">
-                    QAR{(item.price || 0) * item.quantity}
+                    {(item.price || 0) * item.quantity} ريال
                   </span>
                 </div>
               ))}
@@ -295,7 +295,7 @@ export default function SeatSelection() {
               onClick={handleBuyTickets}
               className="w-full h-14 bg-[#8A1538] hover:bg-[#70102d] text-white text-lg font-bold rounded-xl shadow-lg"
             >
-              Buy Your Tickets
+              شراء التذاكر
             </Button>
           </div>
         </div>

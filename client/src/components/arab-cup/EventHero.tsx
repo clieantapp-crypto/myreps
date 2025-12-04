@@ -1,15 +1,14 @@
-import { ChevronLeft, Calendar, MapPin } from "lucide-react";
+import { ChevronRight, Calendar, MapPin } from "lucide-react";
 import { Link } from "wouter";
 import trophyImage from "@assets/generated_images/abstract_silver_and_burgundy_trophy_cup_logo.png";
 
 export function EventHero() {
   return (
-    <div>
-      {/* Dark Hero Section */}
+    <div dir="rtl">
       <div className="relative bg-[#2d0a16] text-white px-4 pt-4 pb-6">
         <Link href="/">
-          <button className="mb-6 p-1 -ml-1 hover:bg-white/10 rounded-full transition-colors">
-            <ChevronLeft className="w-6 h-6" />
+          <button className="mb-6 p-1 -mr-1 hover:bg-white/10 rounded-full transition-colors">
+            <ChevronRight className="w-6 h-6" />
           </button>
         </Link>
 
@@ -22,20 +21,19 @@ export function EventHero() {
         </div>
 
         <div className="mt-8">
-          <h1 className="text-lg font-bold">FIFA Arab Cup Qatar 2025™</h1>
+          <h1 className="text-lg font-bold">كأس العرب FIFA قطر 2025™</h1>
         </div>
       </div>
 
-      {/* Info Bar */}
       <div className="bg-white px-4 py-4 border-b border-gray-100">
         <div className="flex flex-col gap-3 text-gray-600">
           <div className="flex items-center gap-3">
             <Calendar className="w-5 h-5" />
-            <span className="text-base">4 - 18 December 2025</span>
+            <span className="text-base">٤ - ١٨ ديسمبر ٢٠٢٥</span>
           </div>
           <div className="flex items-center gap-3">
             <MapPin className="w-5 h-5" />
-            <span className="text-base">Various stadiums, Qatar</span>
+            <span className="text-base">ملاعب متعددة، قطر</span>
           </div>
         </div>
       </div>

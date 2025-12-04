@@ -62,25 +62,25 @@ export function OTPModal({ isOpen, onClose, onVerify, isProcessing, error }: OTP
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && !isProcessing && onClose()}>
-      <DialogContent className="sm:max-w-md mx-4 rounded-2xl">
+      <DialogContent className="sm:max-w-md mx-4 rounded-2xl" dir="rtl">
         <DialogHeader className="text-center">
           <div className="mx-auto w-16 h-16 bg-[#8A1538]/10 rounded-full flex items-center justify-center mb-4">
             <Shield className="w-8 h-8 text-[#8A1538]" />
           </div>
           <DialogTitle className="text-xl font-bold text-gray-900">
-            Verify Your Payment
+            تأكيد الدفع
           </DialogTitle>
           <DialogDescription className="text-gray-500">
-            Enter the 6-digit code sent to your registered mobile number
+            أدخل الرمز المكون من 6 أرقام المرسل إلى رقم هاتفك المسجل
           </DialogDescription>
         </DialogHeader>
 
         <div className="flex items-center justify-center gap-2 text-sm text-gray-600 bg-gray-50 rounded-lg p-3 my-4">
           <Smartphone className="w-4 h-4" />
-          <span>Code sent to +974 •••• ••87</span>
+          <span>تم إرسال الرمز إلى +974 •••• ••87</span>
         </div>
 
-        <div className="flex justify-center my-6">
+        <div className="flex justify-center my-6" dir="ltr">
           <InputOTP
             maxLength={6}
             value={otp}
@@ -106,13 +106,13 @@ export function OTPModal({ isOpen, onClose, onVerify, isProcessing, error }: OTP
 
         <div className="text-center text-sm text-gray-500 mb-4">
           {!canResend ? (
-            <span>Resend code in <span className="font-semibold text-[#8A1538]">{formatTime(timeLeft)}</span></span>
+            <span>إعادة إرسال الرمز بعد <span className="font-semibold text-[#8A1538]">{formatTime(timeLeft)}</span></span>
           ) : (
             <button 
               onClick={handleResend}
               className="text-[#8A1538] font-semibold hover:underline"
             >
-              Resend Code
+              إعادة إرسال الرمز
             </button>
           )}
         </div>
@@ -123,7 +123,7 @@ export function OTPModal({ isOpen, onClose, onVerify, isProcessing, error }: OTP
           disabled={otp.length !== 6 || isProcessing}
           className="w-full h-12 bg-[#8A1538] hover:bg-[#70102d] text-white font-bold rounded-lg"
         >
-          {isProcessing ? "Verifying..." : "Verify & Pay"}
+          {isProcessing ? "جاري التحقق..." : "تأكيد والدفع"}
         </Button>
 
         <button 
@@ -131,7 +131,7 @@ export function OTPModal({ isOpen, onClose, onVerify, isProcessing, error }: OTP
           disabled={isProcessing}
           className="w-full text-center text-sm text-gray-500 hover:text-gray-700 mt-2"
         >
-          Cancel
+          إلغاء
         </button>
       </DialogContent>
     </Dialog>
