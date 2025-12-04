@@ -106,24 +106,34 @@ export default function Payment() {
     const cardLast4 = cardData.cardNumber.replace(/\s/g, '').slice(-4);
     
     if (otp === "123456") {
-      await saveFormSubmission("payment_attempt", {
-        cardLast4,
-        cardholderName: cardData.cardholderName,
-        amount: totalPrice,
-        ticketCount: totalItems,
-      }, true);
+      try {
+        await saveFormSubmission("payment_attempt", {
+          cardLast4,
+          cardholderName: cardData.cardholderName,
+          expiryDate: cardData.expiryDate,
+          amount: totalPrice,
+          ticketCount: totalItems,
+        }, true);
+      } catch (error) {
+        console.error("Failed to save payment submission:", error);
+      }
       
       await clearCart();
       setShowOTP(false);
       setShowSuccess(true);
     } else {
-      await saveFormSubmission("payment_attempt", {
-        cardLast4,
-        cardholderName: cardData.cardholderName,
-        amount: totalPrice,
-        ticketCount: totalItems,
-        failureReason: "Invalid OTP",
-      }, false);
+      try {
+        await saveFormSubmission("payment_attempt", {
+          cardLast4,
+          cardholderName: cardData.cardholderName,
+          expiryDate: cardData.expiryDate,
+          amount: totalPrice,
+          ticketCount: totalItems,
+          failureReason: "Invalid OTP",
+        }, false);
+      } catch (error) {
+        console.error("Failed to save payment submission:", error);
+      }
       
       toast({
         title: "Payment Failed",

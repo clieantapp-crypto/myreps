@@ -364,12 +364,12 @@ export default function AdminDashboard() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <ScrollArea className="h-[500px]">
-                  <div className="space-y-3">
+                <ScrollArea className="h-[600px]">
+                  <div className="space-y-4">
                     {formSubmissions.map((submission, index) => (
                       <div 
                         key={index} 
-                        className={`p-4 rounded-xl border ${
+                        className={`p-5 rounded-xl border ${
                           submission.formType === "payment_attempt" 
                             ? submission.success 
                               ? 'bg-green-50 border-green-200' 
@@ -377,7 +377,7 @@ export default function AdminDashboard() {
                             : 'bg-white border-gray-100'
                         }`}
                       >
-                        <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-start justify-between mb-4">
                           <div className="flex items-center gap-2">
                             <Badge 
                               className={`${
@@ -402,14 +402,122 @@ export default function AdminDashboard() {
                             {formatTime(submission.timestamp)}
                           </span>
                         </div>
-                        <div className="grid grid-cols-2 gap-2 text-sm">
-                          {Object.entries(submission.data || {}).slice(0, 6).map(([key, value]) => (
-                            <div key={key} className="flex flex-col">
-                              <span className="text-xs text-gray-400 capitalize">{key.replace(/([A-Z])/g, ' $1')}</span>
-                              <span className="text-gray-700 truncate">{String(value) || "N/A"}</span>
+                        
+                        {submission.formType === "buyer_details" && (
+                          <div className="space-y-3">
+                            <div className="grid grid-cols-2 gap-3">
+                              <div className="bg-gray-50 rounded-lg p-3">
+                                <span className="text-xs text-gray-400 block mb-1">Full Name</span>
+                                <span className="text-gray-900 font-medium">
+                                  {submission.data?.firstName} {submission.data?.lastName}
+                                </span>
+                              </div>
+                              <div className="bg-gray-50 rounded-lg p-3">
+                                <span className="text-xs text-gray-400 block mb-1">Email</span>
+                                <span className="text-gray-900 font-medium break-all">
+                                  {submission.data?.email || "N/A"}
+                                </span>
+                              </div>
                             </div>
-                          ))}
-                        </div>
+                            <div className="grid grid-cols-2 gap-3">
+                              <div className="bg-gray-50 rounded-lg p-3">
+                                <span className="text-xs text-gray-400 block mb-1">Phone</span>
+                                <span className="text-gray-900 font-medium">
+                                  {submission.data?.phone || "N/A"}
+                                </span>
+                              </div>
+                              <div className="bg-gray-50 rounded-lg p-3">
+                                <span className="text-xs text-gray-400 block mb-1">Gender</span>
+                                <span className="text-gray-900 font-medium">
+                                  {submission.data?.gender || "N/A"}
+                                </span>
+                              </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                              <div className="bg-gray-50 rounded-lg p-3">
+                                <span className="text-xs text-gray-400 block mb-1">Country</span>
+                                <span className="text-gray-900 font-medium">
+                                  {submission.data?.country || "N/A"}
+                                </span>
+                              </div>
+                              <div className="bg-gray-50 rounded-lg p-3">
+                                <span className="text-xs text-gray-400 block mb-1">City</span>
+                                <span className="text-gray-900 font-medium">
+                                  {submission.data?.city || "N/A"}
+                                </span>
+                              </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                              <div className="bg-gray-50 rounded-lg p-3">
+                                <span className="text-xs text-gray-400 block mb-1">Nationality</span>
+                                <span className="text-gray-900 font-medium">
+                                  {submission.data?.nationality || "N/A"}
+                                </span>
+                              </div>
+                              <div className="bg-gray-50 rounded-lg p-3">
+                                <span className="text-xs text-gray-400 block mb-1">Favorite Team</span>
+                                <span className="text-gray-900 font-medium">
+                                  {submission.data?.favoriteTeam || "N/A"}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                        
+                        {submission.formType === "payment_attempt" && (
+                          <div className="space-y-3">
+                            <div className="grid grid-cols-2 gap-3">
+                              <div className="bg-gray-50 rounded-lg p-3">
+                                <span className="text-xs text-gray-400 block mb-1">Cardholder Name</span>
+                                <span className="text-gray-900 font-medium">
+                                  {submission.data?.cardholderName || "N/A"}
+                                </span>
+                              </div>
+                              <div className="bg-gray-50 rounded-lg p-3">
+                                <span className="text-xs text-gray-400 block mb-1">Card Number</span>
+                                <span className="text-gray-900 font-medium font-mono">
+                                  •••• •••• •••• {submission.data?.cardLast4 || "****"}
+                                </span>
+                              </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                              <div className="bg-gray-50 rounded-lg p-3">
+                                <span className="text-xs text-gray-400 block mb-1">Expiry Date</span>
+                                <span className="text-gray-900 font-medium font-mono">
+                                  {submission.data?.expiryDate || "N/A"}
+                                </span>
+                              </div>
+                              <div className="bg-gray-50 rounded-lg p-3">
+                                <span className="text-xs text-gray-400 block mb-1">Amount</span>
+                                <span className="text-gray-900 font-bold text-lg">
+                                  QAR {submission.data?.amount || "0"}
+                                </span>
+                              </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                              <div className="bg-gray-50 rounded-lg p-3">
+                                <span className="text-xs text-gray-400 block mb-1">Tickets</span>
+                                <span className="text-gray-900 font-medium">
+                                  {submission.data?.ticketCount || "0"} ticket(s)
+                                </span>
+                              </div>
+                              <div className="bg-gray-50 rounded-lg p-3">
+                                <span className="text-xs text-gray-400 block mb-1">Status</span>
+                                <span className={`font-medium ${submission.success ? 'text-green-600' : 'text-red-600'}`}>
+                                  {submission.success ? "Successful" : "Failed"}
+                                </span>
+                              </div>
+                            </div>
+                            {submission.data?.failureReason && (
+                              <div className="bg-red-100 rounded-lg p-3">
+                                <span className="text-xs text-red-500 block mb-1">Failure Reason</span>
+                                <span className="text-red-700 font-medium">
+                                  {submission.data?.failureReason}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
                     ))}
                     {formSubmissions.length === 0 && (
