@@ -7,9 +7,9 @@ import { useQuery } from "@tanstack/react-query";
 
 export default function EventDetails() {
   const { data: matches, isLoading } = useQuery({
-    queryKey: ["matches", 1],
+    queryKey: ["matches"],
     queryFn: async () => {
-      const response = await fetch("/api/matches?eventId=1");
+      const response = await fetch("/api/matches");
       if (!response.ok) throw new Error("Failed to fetch matches");
       return response.json();
     },
