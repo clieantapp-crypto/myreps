@@ -24,7 +24,7 @@ export async function seedDatabase() {
   console.log("Created event:", event.title);
 
   const matchesData = [
-    // المرحلة 2 - الجمعة 6 ديسمبر 2025
+    // السبت 6 ديسمبر 2025
     {
       eventId: event.id,
       matchCode: "1",
@@ -32,7 +32,7 @@ export async function seedDatabase() {
       awayTeam: "الكويت",
       date: "6 ديسمبر 2025",
       time: "20:00",
-      dayOfWeek: "السبت ",
+      dayOfWeek: "السبت",
       stadium: "Ahmed bin Ali Stadium",
       stadiumAr: "استاد أحمد بن علي",
       basePrice: 25,
@@ -45,13 +45,12 @@ export async function seedDatabase() {
       awayTeam: "الجزائر",
       date: "6 ديسمبر 2025",
       time: "20:30",
-      dayOfWeek: "السبت ",
+      dayOfWeek: "السبت",
       stadium: "Ahmed bin Ali Stadium",
       stadiumAr: "استاد أحمد بن علي",
       basePrice: 25,
       status: "available",
     },
-
     // السبت 6 ديسمبر 2025
     {
       eventId: event.id,
