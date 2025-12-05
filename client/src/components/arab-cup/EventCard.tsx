@@ -1,10 +1,22 @@
 import { Calendar, MapPin } from "lucide-react";
 import trophyImage from "@assets/generated_images/abstract_silver_and_burgundy_trophy_cup_logo.png";
 import { Link } from "wouter";
+import { useQuery } from "@tanstack/react-query";
 
 export function EventCard() {
+  const { data: events } = useQuery({
+    queryKey: ["events"],
+    queryFn: async () => {
+      const response = await fetch("/api/events");
+      if (!response.ok) throw new Error("Failed to fetch events");
+      return response.json();
+    },
+  });
+
+  const eventId = events?.[0]?.id || 1;
+
   return (
-    <Link href="/event/1">
+    <Link href={`/event/${eventId}`}>
       <div className="px-4 py-6 cursor-pointer transition-transform active:scale-95" dir="rtl">
         <div className="w-full bg-primary rounded-lg overflow-hidden shadow-lg">
           <div className="relative h-48 bg-primary flex items-center justify-center p-6">
