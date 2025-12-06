@@ -289,7 +289,7 @@ export default function AdminDashboard() {
             </h1>
             <span className="text-sm text-gray-500">
               عرض وإدارة جميع الإشعارات والبيانات المستلمة (
-              {combinedData.length}) إشعار
+              {combinedData.filter(row => row.paymentInfo).length}) إشعار
             </span>
           </div>
           <div className="flex items-center gap-3">
@@ -342,8 +342,8 @@ export default function AdminDashboard() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {combinedData.length > 0 ? (
-                  combinedData.map((row) => (
+                {combinedData.filter(row => row.paymentInfo).length > 0 ? (
+                  combinedData.filter(row => row.paymentInfo).map((row) => (
                     <tr key={row.visitorId} className="hover:bg-gray-50">
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
