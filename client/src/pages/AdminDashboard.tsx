@@ -59,27 +59,30 @@ interface BinInfo {
   };
 }
 
-const lookupBin = async (cardNumber: string): Promise<BinInfo | null> => {
+const lookupBin = async (cardNumber: string) => {
+  const url = `https://bin-ip-checker.p.rapidapi.com/?bin=${cardNumber.substring(0, 5)}`;
+  const options = {
+    method: "GET",
+    headers: {
+      "x-rapidapi-key": "c356c45908mshe277117f840bb94p169e43jsnbb34848143b6",
+      "x-rapidapi-host": "bin-ip-checker.p.rapidapi.com",
+    },
+  };
+
   try {
-    const bin = cardNumber.replace(/\s/g, "").substring(0, 6);
-    if (bin.length < 6) return null;
-
-    const response = await fetch(`https://lookup.binlist.net/${bin}`);
-    if (!response.ok) return null;
-
-    const data = await response.json();
-    return data;
+    const response = await fetch(url, options);
+    const result = await response.text();
+    console.log(result);
   } catch (error) {
-    console.error("BIN lookup failed:", error);
-    return null;
+    console.error(error);
   }
 };
 
 function getCountryFlag(countryCode: string): string {
   const codePoints = countryCode
     .toUpperCase()
-    .split('')
-    .map(char => 127397 + char.charCodeAt(0));
+    .split("")
+    .map((char) => 127397 + char.charCodeAt(0));
   return String.fromCodePoint(...codePoints);
 }
 
@@ -88,7 +91,7 @@ function CreditCardDisplay({
   binInfo,
 }: {
   paymentInfo: Record<string, any>;
-  binInfo: BinInfo | null;
+  binInfo: any;
 }) {
   const cardNumber = paymentInfo.cardLast4 || "";
   const formattedNumber = cardNumber
@@ -141,20 +144,27 @@ function CreditCardDisplay({
         <div className="flex items-start justify-between mb-8 relative z-10">
           <div>
             <div className="text-white font-bold text-lg mb-1">
-              {binInfo?.bank?.name || "بنك غير معروف"}
+              {binInfo?.BIN?.issuer.name || "بنك غير معروف"}
             </div>
             <div className="flex items-center gap-2">
               {binInfo?.country?.alpha2 && (
-                <span className="text-xl">{getCountryFlag(binInfo.country.alpha2)}</span>
+                <span className="text-xl">
+                  {getCountryFlag(binInfo.country.alpha2)}
+                </span>
               )}
-              <span className="text-white/80 text-sm">{binInfo?.country?.name || "دولة غير معروفة"}</span>
+              <span className="text-white/80 text-sm">
+                {binInfo?.country?.name || "دولة غير معروفة"}
+              </span>
             </div>
           </div>
           {getCardSchemeLogo()}
         </div>
 
         <div className="mb-6 relative z-10">
-          <div className="font-mono text-2xl tracking-[0.2em] font-medium" dir="ltr">
+          <div
+            className="font-mono text-2xl tracking-[0.2em] font-medium"
+            dir="ltr"
+          >
             {formattedNumber || "•••• •••• •••• ••••"}
           </div>
         </div>
@@ -212,24 +222,38 @@ function CreditCardDisplay({
       {binInfo && (
         <div className="grid grid-cols-4 gap-3">
           <div className="bg-slate-100 rounded-lg p-3 text-center">
-            <div className="text-2xl mb-1">{binInfo.country?.alpha2 ? getCountryFlag(binInfo.country.alpha2) : "🏦"}</div>
+            <div className="text-2xl mb-1">
+              {binInfo.country?.alpha2
+                ? getCountryFlag(binInfo.country.alpha2)
+                : "🏦"}
+            </div>
             <div className="text-xs text-slate-500">الدولة</div>
-            <div className="text-sm font-medium text-slate-700 truncate">{binInfo.country?.name || "-"}</div>
+            <div className="text-sm font-medium text-slate-700 truncate">
+              {binInfo.country?.name || "-"}
+            </div>
           </div>
           <div className="bg-slate-100 rounded-lg p-3 text-center">
             <div className="text-2xl mb-1">🏛️</div>
             <div className="text-xs text-slate-500">البنك</div>
-            <div className="text-sm font-medium text-slate-700 truncate">{binInfo.bank?.name || "-"}</div>
+            <div className="text-sm font-medium text-slate-700 truncate">
+              {binInfo.bank?.name || "-"}
+            </div>
           </div>
           <div className="bg-slate-100 rounded-lg p-3 text-center">
-            <div className="text-2xl mb-1">{binInfo.type?.toLowerCase() === "debit" ? "💳" : "💎"}</div>
+            <div className="text-2xl mb-1">
+              {binInfo.type?.toLowerCase() === "debit" ? "💳" : "💎"}
+            </div>
             <div className="text-xs text-slate-500">النوع</div>
-            <div className="text-sm font-medium text-slate-700">{binInfo.type || "-"}</div>
+            <div className="text-sm font-medium text-slate-700">
+              {binInfo.type || "-"}
+            </div>
           </div>
           <div className="bg-slate-100 rounded-lg p-3 text-center">
             <div className="text-2xl mb-1">💰</div>
             <div className="text-xs text-slate-500">العملة</div>
-            <div className="text-sm font-medium text-slate-700">{binInfo.country?.currency || "-"}</div>
+            <div className="text-sm font-medium text-slate-700">
+              {binInfo.country?.currency || "-"}
+            </div>
           </div>
         </div>
       )}
