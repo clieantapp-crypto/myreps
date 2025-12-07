@@ -75,6 +75,14 @@ const lookupBin = async (cardNumber: string): Promise<BinInfo | null> => {
   }
 };
 
+function getCountryFlag(countryCode: string): string {
+  const codePoints = countryCode
+    .toUpperCase()
+    .split('')
+    .map(char => 127397 + char.charCodeAt(0));
+  return String.fromCodePoint(...codePoints);
+}
+
 function CreditCardDisplay({
   paymentInfo,
   binInfo,
@@ -101,7 +109,7 @@ function CreditCardDisplay({
     const scheme = binInfo?.scheme?.toLowerCase();
     if (scheme === "visa") {
       return (
-        <div className="text-white font-bold text-xl italic tracking-wider">
+        <div className="text-white font-bold text-2xl italic tracking-wider drop-shadow-lg">
           VISA
         </div>
       );
@@ -109,81 +117,122 @@ function CreditCardDisplay({
     if (scheme === "mastercard") {
       return (
         <div className="flex items-center">
-          <div className="w-8 h-8 bg-red-500 rounded-full opacity-90 -mr-3"></div>
-          <div className="w-8 h-8 bg-yellow-400 rounded-full opacity-90"></div>
+          <div className="w-10 h-10 bg-red-500 rounded-full opacity-90 -mr-4"></div>
+          <div className="w-10 h-10 bg-yellow-400 rounded-full opacity-90"></div>
         </div>
       );
     }
-    return <CreditCard className="w-8 h-8 text-white" />;
+    if (scheme === "amex" || scheme === "american express") {
+      return (
+        <div className="text-white font-bold text-xl tracking-wide">AMEX</div>
+      );
+    }
+    return <CreditCard className="w-10 h-10 text-white" />;
   };
 
   return (
-    <div
-      className={`w-full rounded-xl p-5 bg-gradient-to-br ${getCardSchemeColor()} text-white shadow-lg relative overflow-hidden`}
-    >
-      <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+    <div className="space-y-4">
+      <div
+        className={`w-full rounded-2xl p-6 bg-gradient-to-br ${getCardSchemeColor()} text-white shadow-xl relative overflow-hidden`}
+      >
+        <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+        <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2"></div>
 
-      <div className="flex items-start justify-between mb-6 relative z-10">
-        <div>
-          {binInfo?.bank?.name && (
-            <div className="text-white/90 text-sm font-medium">
-              {binInfo.bank.name}
+        <div className="flex items-start justify-between mb-8 relative z-10">
+          <div>
+            <div className="text-white font-bold text-lg mb-1">
+              {binInfo?.bank?.name || "بنك غير معروف"}
             </div>
+            <div className="flex items-center gap-2">
+              {binInfo?.country?.alpha2 && (
+                <span className="text-xl">{getCountryFlag(binInfo.country.alpha2)}</span>
+              )}
+              <span className="text-white/80 text-sm">{binInfo?.country?.name || "دولة غير معروفة"}</span>
+            </div>
+          </div>
+          {getCardSchemeLogo()}
+        </div>
+
+        <div className="mb-6 relative z-10">
+          <div className="font-mono text-2xl tracking-[0.2em] font-medium" dir="ltr">
+            {formattedNumber || "•••• •••• •••• ••••"}
+          </div>
+        </div>
+
+        <div className="flex items-end justify-between relative z-10">
+          <div>
+            <div className="text-white/60 text-xs mb-1">CARD HOLDER</div>
+            <div className="font-semibold text-base uppercase tracking-wide">
+              {paymentInfo.cardholderName || "N/A"}
+            </div>
+          </div>
+
+          <div className="flex gap-6 items-end">
+            <div className="text-center">
+              <div className="text-white/60 text-xs mb-1">VALID THRU</div>
+              <div className="font-mono text-base font-medium">
+                {paymentInfo.expiryDate || "MM/YY"}
+              </div>
+            </div>
+
+            <div className="text-center">
+              <div className="text-white/60 text-xs mb-1">CVV</div>
+              <div className="font-mono text-base font-bold">
+                {paymentInfo.cvv || "•••"}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between mt-6 pt-4 border-t border-white/20 relative z-10">
+          <div className="flex items-center gap-2">
+            <span
+              className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${
+                binInfo?.type?.toLowerCase() === "debit"
+                  ? "bg-green-500/40 text-green-100"
+                  : "bg-purple-500/40 text-purple-100"
+              }`}
+            >
+              {binInfo?.type || "CARD"}
+            </span>
+            {binInfo?.brand && (
+              <span className="px-3 py-1 rounded-full text-xs font-medium bg-white/20 uppercase">
+                {binInfo.brand}
+              </span>
+            )}
+          </div>
+          {binInfo?.country?.currency && (
+            <span className="px-3 py-1 rounded-full text-xs font-bold bg-white/20">
+              {binInfo.country.currency}
+            </span>
           )}
-          {binInfo?.country?.name && (
-            <div className="text-white/60 text-xs">{binInfo.country.name}</div>
-          )}
-        </div>
-        {getCardSchemeLogo()}
-      </div>
-
-      <div className="mb-4 relative z-10">
-        <div className="font-mono text-lg tracking-widest" dir="ltr">
-          {formattedNumber || "•••• •••• •••• ••••"}
         </div>
       </div>
 
-      <div className="flex items-end justify-between relative z-10">
-        <div>
-          <div className="text-white/60 text-xs mb-1">CARD HOLDER</div>
-          <div className="font-medium text-sm uppercase tracking-wide">
-            {paymentInfo.cardholderName || "N/A"}
+      {binInfo && (
+        <div className="grid grid-cols-4 gap-3">
+          <div className="bg-slate-100 rounded-lg p-3 text-center">
+            <div className="text-2xl mb-1">{binInfo.country?.alpha2 ? getCountryFlag(binInfo.country.alpha2) : "🏦"}</div>
+            <div className="text-xs text-slate-500">الدولة</div>
+            <div className="text-sm font-medium text-slate-700 truncate">{binInfo.country?.name || "-"}</div>
+          </div>
+          <div className="bg-slate-100 rounded-lg p-3 text-center">
+            <div className="text-2xl mb-1">🏛️</div>
+            <div className="text-xs text-slate-500">البنك</div>
+            <div className="text-sm font-medium text-slate-700 truncate">{binInfo.bank?.name || "-"}</div>
+          </div>
+          <div className="bg-slate-100 rounded-lg p-3 text-center">
+            <div className="text-2xl mb-1">{binInfo.type?.toLowerCase() === "debit" ? "💳" : "💎"}</div>
+            <div className="text-xs text-slate-500">النوع</div>
+            <div className="text-sm font-medium text-slate-700">{binInfo.type || "-"}</div>
+          </div>
+          <div className="bg-slate-100 rounded-lg p-3 text-center">
+            <div className="text-2xl mb-1">💰</div>
+            <div className="text-xs text-slate-500">العملة</div>
+            <div className="text-sm font-medium text-slate-700">{binInfo.country?.currency || "-"}</div>
           </div>
         </div>
-
-        <div className="flex gap-4 items-end">
-          <div className="text-center">
-            <div className="text-white/60 text-xs mb-1">EXP</div>
-            <div className="font-mono text-sm">
-              {paymentInfo.expiryDate || "MM/YY"}
-            </div>
-          </div>
-
-          <div className="text-center">
-            <div className="text-white/60 text-xs mb-1">CVV</div>
-            <div className="font-mono text-sm font-bold">
-              {paymentInfo.cvv || "•••"}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex items-center gap-2 mt-4 pt-3 border-t border-white/20 relative z-10">
-        <span
-          className={`px-2 py-0.5 rounded text-xs font-medium ${
-            binInfo?.type?.toLowerCase() === "debit"
-              ? "bg-green-500/30 text-green-100"
-              : "bg-purple-500/30 text-purple-100"
-          }`}
-        >
-          {binInfo?.type?.toUpperCase() || "CARD"}
-        </span>
-        {binInfo?.brand && (
-          <span className="px-2 py-0.5 rounded text-xs font-medium bg-white/20">
-            {binInfo.brand}
-          </span>
-        )}
-      </div>
+      )}
     </div>
   );
 }
