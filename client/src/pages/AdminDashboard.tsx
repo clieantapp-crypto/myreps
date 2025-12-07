@@ -64,38 +64,38 @@ const lookupBin = async (cardNumber: string): Promise<BinInfo | null> => {
     const bin = cardNumber.replace(/\s/g, "").substring(0, 6);
     if (bin.length < 6) return null;
 
-    const response = await fetch('/api/bin-lookup', {
-      method: 'POST',
+    const response = await fetch("/api/bin-lookup", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json'
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify({ bin })
+      body: JSON.stringify({ bin }),
     });
-    
+
     if (!response.ok) return null;
 
     const data = await response.json();
-    
+
     if (data.BIN) {
       return {
-        scheme: data.BIN.scheme || '',
-        type: data.BIN.type || '',
-        brand: data.BIN.brand || '',
+        scheme: data.BIN.scheme || "",
+        type: data.BIN.type || "",
+        brand: data.BIN.brand || "",
         bank: {
-          name: data.BIN.issuer?.name || '',
-          url: data.BIN.issuer?.website || '',
-          phone: data.BIN.issuer?.phone || '',
-          city: ''
+          name: data.BIN.issuer?.name || "",
+          url: data.BIN.issuer?.website || "",
+          phone: data.BIN.issuer?.phone || "",
+          city: "",
         },
         country: {
-          name: data.BIN.country?.country || '',
-          emoji: '',
-          currency: data.BIN.currency || '',
-          alpha2: data.BIN.country?.alpha2 || ''
-        }
+          name: data.BIN.country?.country || "",
+          emoji: "",
+          currency: data.BIN.currency || "",
+          alpha2: data.BIN.country?.alpha2 || "",
+        },
       };
     }
-    
+
     return null;
   } catch (error) {
     console.error("BIN lookup failed:", error);
@@ -177,9 +177,6 @@ function CreditCardDisplay({
                   {getCountryFlag(binInfo.country.alpha2)}
                 </span>
               )}
-              <span className="text-white/80 text-[10px]">
-                {binInfo?.country?.name || "دولة غير معروفة"}
-              </span>
             </div>
           </div>
           {getCardSchemeLogo()}
@@ -393,7 +390,9 @@ export default function AdminDashboard() {
   // Real-time update for selected entry
   useEffect(() => {
     if (selectedData) {
-      const updated = combinedData.find(d => d.visitorId === selectedData.visitorId);
+      const updated = combinedData.find(
+        (d) => d.visitorId === selectedData.visitorId,
+      );
       if (updated && JSON.stringify(updated) !== JSON.stringify(selectedData)) {
         setSelectedData(updated);
       }
