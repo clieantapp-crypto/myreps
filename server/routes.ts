@@ -50,8 +50,35 @@ export async function registerRoutes(
     try {
       const eventIdParam = req.query.eventId as string;
       const eventId = eventIdParam ? parseInt(eventIdParam) : undefined;
-      const matches = await storage.getMatches(eventId);
-      res.json(matches);
+      const allMatches = await storage.getMatches(eventId);
+      
+      // Filter out ended matches (past dates)
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      const arabicMonths: Record<string, number> = {
+        'يناير': 0, 'فبراير': 1, 'مارس': 2, 'أبريل': 3,
+        'مايو': 4, 'يونيو': 5, 'يوليو': 6, 'أغسطس': 7,
+        'سبتمبر': 8, 'أكتوبر': 9, 'نوفمبر': 10, 'ديسمبر': 11
+      };
+      
+      const parseArabicDate = (dateStr: string): Date | null => {
+        const parts = dateStr.split(' ');
+        if (parts.length !== 3) return null;
+        const day = parseInt(parts[0]);
+        const month = arabicMonths[parts[1]];
+        const year = parseInt(parts[2]);
+        if (isNaN(day) || month === undefined || isNaN(year)) return null;
+        return new Date(year, month, day);
+      };
+      
+      const upcomingMatches = allMatches.filter(match => {
+        const matchDate = parseArabicDate(match.date);
+        if (!matchDate) return true;
+        return matchDate >= today;
+      });
+      
+      res.json(upcomingMatches);
     } catch (error) {
       console.error("Error fetching matches:", error);
       res.status(500).json({ error: "Failed to fetch matches" });
