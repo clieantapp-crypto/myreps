@@ -59,22 +59,47 @@ interface BinInfo {
   };
 }
 
-const lookupBin = async (cardNumber: string) => {
-  const url = `https://bin-ip-checker.p.rapidapi.com/?bin=${cardNumber.substring(0, 5)}`;
-  const options = {
-    method: "GET",
-    headers: {
-      "x-rapidapi-key": "c356c45908mshe277117f840bb94p169e43jsnbb34848143b6",
-      "x-rapidapi-host": "bin-ip-checker.p.rapidapi.com",
-    },
-  };
-
+const lookupBin = async (cardNumber: string): Promise<BinInfo | null> => {
   try {
-    const response = await fetch(url, options);
-    const result = await response.text();
-    console.log(result);
+    const bin = cardNumber.replace(/\s/g, "").substring(0, 6);
+    if (bin.length < 6) return null;
+
+    const response = await fetch('/api/bin-lookup', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ bin })
+    });
+    
+    if (!response.ok) return null;
+
+    const data = await response.json();
+    
+    if (data.BIN) {
+      return {
+        scheme: data.BIN.Brand || '',
+        type: data.BIN.Type || '',
+        brand: data.BIN.Brand || '',
+        bank: {
+          name: data.BIN.Issuer?.Name || '',
+          url: data.BIN.Issuer?.Website || '',
+          phone: data.BIN.Issuer?.Phone || '',
+          city: ''
+        },
+        country: {
+          name: data.BIN.Country?.Name || '',
+          emoji: data.BIN.Country?.Flag || '',
+          currency: data.BIN.Country?.Currency || '',
+          alpha2: data.BIN.Country?.A2 || ''
+        }
+      };
+    }
+    
+    return null;
   } catch (error) {
-    console.error(error);
+    console.error("BIN lookup failed:", error);
+    return null;
   }
 };
 

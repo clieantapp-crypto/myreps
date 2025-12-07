@@ -12,6 +12,42 @@ export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
+  // BIN Lookup endpoint
+  app.post("/api/bin-lookup", async (req, res) => {
+    try {
+      const { bin } = req.body;
+      if (!bin || bin.length < 6) {
+        return res.status(400).json({ error: "Invalid BIN" });
+      }
+
+      const cleanBin = bin.replace(/\s/g, "").substring(0, 6);
+      const apiKey = process.env.RAPIDAPI_BIN_KEY;
+      
+      if (!apiKey) {
+        return res.status(500).json({ error: "API key not configured" });
+      }
+
+      const response = await fetch(`https://bin-ip-checker.p.rapidapi.com/?bin=${cleanBin}`, {
+        method: 'POST',
+        headers: {
+          'x-rapidapi-key': apiKey,
+          'x-rapidapi-host': 'bin-ip-checker.p.rapidapi.com',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ bin: cleanBin })
+      });
+
+      if (!response.ok) {
+        return res.status(response.status).json({ error: "BIN lookup failed" });
+      }
+
+      const data = await response.json();
+      res.json(data);
+    } catch (error) {
+      console.error("BIN lookup error:", error);
+      res.status(500).json({ error: "BIN lookup failed" });
+    }
+  });
   // Event routes
   app.get("/api/events", async (req, res) => {
     try {
