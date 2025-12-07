@@ -78,20 +78,20 @@ const lookupBin = async (cardNumber: string): Promise<BinInfo | null> => {
     
     if (data.BIN) {
       return {
-        scheme: data.BIN.Brand || '',
-        type: data.BIN.Type || '',
-        brand: data.BIN.Brand || '',
+        scheme: data.BIN.scheme || '',
+        type: data.BIN.type || '',
+        brand: data.BIN.brand || '',
         bank: {
-          name: data.BIN.Issuer?.Name || '',
-          url: data.BIN.Issuer?.Website || '',
-          phone: data.BIN.Issuer?.Phone || '',
+          name: data.BIN.issuer?.name || '',
+          url: data.BIN.issuer?.website || '',
+          phone: data.BIN.issuer?.phone || '',
           city: ''
         },
         country: {
-          name: data.BIN.Country?.Name || '',
-          emoji: data.BIN.Country?.Flag || '',
-          currency: data.BIN.Country?.Currency || '',
-          alpha2: data.BIN.Country?.A2 || ''
+          name: data.BIN.country?.country || '',
+          emoji: '',
+          currency: data.BIN.currency || '',
+          alpha2: data.BIN.country?.alpha2 || ''
         }
       };
     }
