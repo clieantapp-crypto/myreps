@@ -1,5 +1,6 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Shield, Smartphone, Loader2, Lock, CheckCircle2 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 
@@ -12,17 +13,17 @@ interface OTPModalProps {
 }
 
 export function OTPModal({ isOpen, onClose, onVerify, isProcessing, error }: OTPModalProps) {
-  const [otp, setOtp] = useState<string[]>(["", "", "", "", "", ""]);
+  const [otp, setOtp] = useState("");
   const [timeLeft, setTimeLeft] = useState(120);
   const [canResend, setCanResend] = useState(false);
-  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     if (isOpen) {
-      setOtp(["", "", "", "", "", ""]);
+      setOtp("");
       setTimeLeft(120);
       setCanResend(false);
-      setTimeout(() => inputRefs.current[0]?.focus(), 100);
+      setTimeout(() => inputRef.current?.focus(), 100);
     }
   }, [isOpen]);
 
@@ -52,50 +53,23 @@ export function OTPModal({ isOpen, onClose, onVerify, isProcessing, error }: OTP
   const handleResend = () => {
     setTimeLeft(120);
     setCanResend(false);
-    setOtp(["", "", "", "", "", ""]);
-    inputRefs.current[0]?.focus();
+    setOtp("");
+    inputRef.current?.focus();
   };
 
   const handleVerify = () => {
-    const otpValue = otp.join("");
-    if (otpValue.length >= 4) {
-      onVerify(otpValue);
+    if (otp.length >= 4) {
+      onVerify(otp);
     }
   };
 
-  const handleOtpChange = (index: number, value: string) => {
-    if (!/^\d*$/.test(value)) return;
-    
-    const newOtp = [...otp];
-    newOtp[index] = value.slice(-1);
-    setOtp(newOtp);
-    
-    if (value && index < 5) {
-      inputRefs.current[index + 1]?.focus();
-    }
+  const handleOtpChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, "");
+    setOtp(value);
   };
 
-  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Backspace" && !otp[index] && index > 0) {
-      inputRefs.current[index - 1]?.focus();
-    }
-  };
-
-  const handlePaste = (e: React.ClipboardEvent) => {
-    e.preventDefault();
-    const pastedData = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
-    const newOtp = [...otp];
-    for (let i = 0; i < pastedData.length; i++) {
-      newOtp[i] = pastedData[i];
-    }
-    setOtp(newOtp);
-    if (pastedData.length > 0) {
-      inputRefs.current[Math.min(pastedData.length, 5)]?.focus();
-    }
-  };
-
-  const otpValue = otp.join("");
-  const isComplete = otpValue.length >= 4;
+  const isComplete = otp.length >= 4;
+  const displayOtp = otp.padEnd(6, "•").split("");
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && !isProcessing && onClose()}>
@@ -109,14 +83,14 @@ export function OTPModal({ isOpen, onClose, onVerify, isProcessing, error }: OTP
               </div>
               <div className="text-[8px] text-slate-400 mb-1">رمز التحقق</div>
               <div className="flex gap-0.5">
-                {[0, 1, 2, 3, 4, 5].map((i) => (
+                {displayOtp.map((char, i) => (
                   <div 
                     key={i} 
                     className={`w-3 h-4 rounded-sm flex items-center justify-center text-[8px] font-bold ${
                       otp[i] ? 'bg-green-500 text-white' : 'bg-slate-700 text-slate-500'
                     }`}
                   >
-                    {otp[i] || "•"}
+                    {char}
                   </div>
                 ))}
               </div>
@@ -155,28 +129,26 @@ export function OTPModal({ isOpen, onClose, onVerify, isProcessing, error }: OTP
                 <span>تم إرسال SMS إلى <span dir="ltr" className="font-mono">+974 •••• ••87</span></span>
               </div>
 
-              <div className="flex justify-center gap-2 mb-5" dir="ltr" onPaste={handlePaste}>
-                {otp.map((digit, index) => (
-                  <input
-                    key={index}
-                    ref={(el) => { inputRefs.current[index] = el; }}
-                    type="text"
-                    inputMode="numeric"
-                    value={digit}
-                    onChange={(e) => handleOtpChange(index, e.target.value)}
-                    onKeyDown={(e) => handleKeyDown(index, e)}
-                    disabled={isProcessing}
-                    data-testid={`input-otp-${index}`}
-                    className={`w-11 h-14 text-center text-xl font-bold rounded-xl border-2 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#8A1538]/20 ${
-                      digit 
-                        ? 'border-[#8A1538] bg-[#8A1538]/5 text-[#8A1538]' 
-                        : error 
-                          ? 'border-red-400 bg-red-50' 
-                          : 'border-gray-200 bg-white hover:border-gray-300'
-                    }`}
-                    maxLength={1}
-                  />
-                ))}
+              <div className="mb-5">
+                <Input
+                  ref={inputRef}
+                  data-testid="input-otp"
+                  type="text"
+                  inputMode="numeric"
+                  value={otp}
+                  onChange={handleOtpChange}
+                  disabled={isProcessing}
+                  placeholder="أدخل رمز التحقق"
+                  className={`h-14 text-center text-2xl font-mono tracking-[0.3em] rounded-xl border-2 transition-all duration-200 ${
+                    otp.length > 0
+                      ? 'border-[#8A1538] bg-[#8A1538]/5 text-[#8A1538]' 
+                      : error 
+                        ? 'border-red-400 bg-red-50' 
+                        : 'border-gray-200 bg-white hover:border-gray-300'
+                  }`}
+                  dir="ltr"
+                  maxLength={8}
+                />
               </div>
 
               {error && (
